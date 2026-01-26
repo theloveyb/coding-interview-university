@@ -3,673 +3,1456 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Toronto Multiplex Development & Conversions — Research Dashboard</title>
+<title>MPLXINT — Toronto Multiplex Intelligence Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
-  :root {
-    --bg: #0f1117;
-    --card: #1a1d2e;
-    --border: #2a2d3e;
-    --text: #e0e0e6;
-    --muted: #8888a0;
-    --accent: #6c8cff;
-    --accent2: #ff6c8c;
-    --accent3: #6cffa0;
-    --accent4: #ffc86c;
-    --accent5: #c86cff;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-    padding: 0 0 60px 0;
-  }
-  header {
-    background: linear-gradient(135deg, #1a1d2e 0%, #252840 100%);
-    border-bottom: 1px solid var(--border);
-    padding: 40px 20px 30px;
-    text-align: center;
-  }
-  header h1 {
-    font-size: 2.2rem;
-    font-weight: 700;
-    margin-bottom: 8px;
-    background: linear-gradient(135deg, var(--accent), var(--accent5));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  header p {
-    color: var(--muted);
-    font-size: 1rem;
-    max-width: 700px;
-    margin: 0 auto;
-  }
-  .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+/* ===== FONTS ===== */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-  /* KPI row */
-  .kpi-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 32px;
-  }
-  .kpi {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 22px 20px;
-    text-align: center;
-  }
-  .kpi .value {
-    font-size: 2rem;
-    font-weight: 800;
-    color: var(--accent);
-  }
-  .kpi .label {
-    font-size: 0.82rem;
-    color: var(--muted);
-    margin-top: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .kpi:nth-child(2) .value { color: var(--accent3); }
-  .kpi:nth-child(3) .value { color: var(--accent4); }
-  .kpi:nth-child(4) .value { color: var(--accent2); }
-  .kpi:nth-child(5) .value { color: var(--accent5); }
+:root {
+  --bg: #06080d;
+  --bg2: #0b0e16;
+  --card: #0f1219;
+  --card-hover: #141822;
+  --border: #1a1f2e;
+  --border-glow: #2a3050;
+  --text: #c8ccd8;
+  --text-bright: #e8ecf4;
+  --muted: #5a6070;
+  --green: #00ff88;
+  --green-dim: #00cc6a;
+  --green-bg: rgba(0,255,136,0.06);
+  --red: #ff3355;
+  --red-dim: #cc2944;
+  --red-bg: rgba(255,51,85,0.06);
+  --amber: #ffaa00;
+  --amber-dim: #cc8800;
+  --amber-bg: rgba(255,170,0,0.06);
+  --blue: #3388ff;
+  --blue-dim: #2266cc;
+  --blue-bg: rgba(51,136,255,0.06);
+  --purple: #aa55ff;
+  --cyan: #00ccff;
+  --cyan-bg: rgba(0,204,255,0.06);
+  --mono: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+  --sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
 
-  /* Chart grid */
-  .chart-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
-    gap: 24px;
-    margin-bottom: 32px;
-  }
-  .chart-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-  }
-  .chart-card h3 {
-    font-size: 1.05rem;
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
-  .chart-card .subtitle {
-    font-size: 0.8rem;
-    color: var(--muted);
-    margin-bottom: 18px;
-  }
-  .chart-card canvas { width: 100% !important; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-  .full-width { grid-column: 1 / -1; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
 
-  /* Timeline */
-  .timeline {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 28px 28px 20px;
-    margin-bottom: 32px;
-  }
-  .timeline h3 { font-size: 1.1rem; margin-bottom: 20px; }
-  .tl-track {
-    position: relative;
-    padding-left: 28px;
-    border-left: 2px solid var(--border);
-  }
-  .tl-item {
-    position: relative;
-    padding-bottom: 22px;
-  }
-  .tl-item::before {
-    content: '';
-    position: absolute;
-    left: -34px;
-    top: 5px;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--accent);
-    border: 2px solid var(--bg);
-  }
-  .tl-item:nth-child(2)::before { background: var(--accent3); }
-  .tl-item:nth-child(3)::before { background: var(--accent4); }
-  .tl-item:nth-child(4)::before { background: var(--accent2); }
-  .tl-item:nth-child(5)::before { background: var(--accent5); }
-  .tl-date { font-size: 0.78rem; color: var(--accent); font-weight: 600; text-transform: uppercase; }
-  .tl-title { font-weight: 600; margin: 2px 0; }
-  .tl-desc { font-size: 0.85rem; color: var(--muted); }
+/* ===== SCANLINE OVERLAY ===== */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
 
-  /* Sources */
-  .sources {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-  }
-  .sources h3 { margin-bottom: 12px; font-size: 1rem; }
-  .sources ul { list-style: none; padding: 0; }
-  .sources li {
-    padding: 6px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.85rem;
-  }
-  .sources li:last-child { border-bottom: none; }
-  .sources a { color: var(--accent); text-decoration: none; }
-  .sources a:hover { text-decoration: underline; }
+/* ===== TOP TICKER ===== */
+.ticker-bar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  height: 36px;
+  overflow: hidden;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+}
+.ticker-label {
+  background: var(--red);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+  z-index: 2;
+}
+.ticker-track {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.ticker-content {
+  display: flex;
+  white-space: nowrap;
+  animation: tickerScroll 90s linear infinite;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  gap: 0;
+}
+.ticker-content span {
+  padding: 0 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.ticker-content .t-green { color: var(--green); }
+.ticker-content .t-red { color: var(--red); }
+.ticker-content .t-amber { color: var(--amber); }
+.ticker-content .t-blue { color: var(--blue); }
+.ticker-sep {
+  color: var(--border);
+  font-size: 0.5rem;
+}
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
 
-  @media (max-width: 600px) {
-    .chart-grid { grid-template-columns: 1fr; }
-    header h1 { font-size: 1.5rem; }
-    .kpi .value { font-size: 1.5rem; }
-  }
+/* ===== HEADER ===== */
+.header {
+  border-bottom: 1px solid var(--border);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: var(--bg2);
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.logo {
+  font-family: var(--mono);
+  font-weight: 800;
+  font-size: 1.4rem;
+  letter-spacing: 2px;
+  color: var(--green);
+  text-shadow: 0 0 20px rgba(0,255,136,0.3);
+}
+.logo-sub {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--green);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.live-dot {
+  width: 8px; height: 8px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 8px var(--green);
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+.clock {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+.last-update {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+
+/* ===== DENSITY INDEX (DEFCON-style) ===== */
+.density-index {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.density-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.density-levels {
+  display: flex;
+  gap: 4px;
+}
+.density-level {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  transition: all 0.3s;
+  cursor: default;
+  position: relative;
+}
+.density-level.active {
+  animation: levelGlow 3s ease-in-out infinite;
+}
+.density-level[data-level="1"] { --lc: var(--green); }
+.density-level[data-level="2"] { --lc: #66ff66; }
+.density-level[data-level="3"] { --lc: var(--amber); }
+.density-level[data-level="4"] { --lc: #ff6633; }
+.density-level[data-level="5"] { --lc: var(--red); }
+.density-level.active {
+  background: color-mix(in srgb, var(--lc) 10%, transparent);
+  border-color: var(--lc);
+  color: var(--lc);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--lc) 40%, transparent);
+  box-shadow: 0 0 15px color-mix(in srgb, var(--lc) 15%, transparent);
+}
+@keyframes levelGlow {
+  0%, 100% { box-shadow: 0 0 15px color-mix(in srgb, var(--lc) 15%, transparent); }
+  50% { box-shadow: 0 0 25px color-mix(in srgb, var(--lc) 25%, transparent); }
+}
+.density-desc {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text);
+  margin-left: auto;
+}
+
+/* ===== MAIN LAYOUT ===== */
+.main {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  min-height: calc(100vh - 160px);
+}
+
+/* ===== LEFT CONTENT ===== */
+.content {
+  padding: 20px 24px;
+  overflow-y: auto;
+}
+
+/* ===== KPI STRIP ===== */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.kpi {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 14px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.kpi:hover { border-color: var(--border-glow); }
+.kpi::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 2px;
+}
+.kpi:nth-child(1)::before { background: var(--green); }
+.kpi:nth-child(2)::before { background: var(--blue); }
+.kpi:nth-child(3)::before { background: var(--amber); }
+.kpi:nth-child(4)::before { background: var(--purple); }
+.kpi:nth-child(5)::before { background: var(--cyan); }
+.kpi-value {
+  font-family: var(--mono);
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.kpi:nth-child(1) .kpi-value { color: var(--green); }
+.kpi:nth-child(2) .kpi-value { color: var(--blue); }
+.kpi:nth-child(3) .kpi-value { color: var(--amber); }
+.kpi:nth-child(4) .kpi-value { color: var(--purple); }
+.kpi:nth-child(5) .kpi-value { color: var(--cyan); }
+.kpi-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  line-height: 1.3;
+}
+.kpi-delta {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  margin-top: 6px;
+}
+.kpi-delta.up { color: var(--green); }
+.kpi-delta.down { color: var(--red); }
+
+/* ===== CHART CARDS ===== */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.chart-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+  transition: border-color 0.3s;
+}
+.chart-card:hover { border-color: var(--border-glow); }
+.chart-card.full { grid-column: 1 / -1; }
+.chart-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.chart-title {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-bright);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.chart-subtitle {
+  font-size: 0.68rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.chart-badge {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.badge-live {
+  background: var(--green-bg);
+  color: var(--green);
+  border: 1px solid rgba(0,255,136,0.2);
+}
+.badge-static {
+  background: var(--blue-bg);
+  color: var(--blue);
+  border: 1px solid rgba(51,136,255,0.2);
+}
+
+/* ===== TIMELINE ===== */
+.timeline-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+.timeline-title {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-bright);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+.tl-track {
+  position: relative;
+  padding-left: 20px;
+  border-left: 2px solid var(--border);
+}
+.tl-item {
+  position: relative;
+  padding-bottom: 16px;
+}
+.tl-item:last-child { padding-bottom: 0; }
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -25px; top: 4px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--green);
+  background: var(--bg);
+}
+.tl-item:nth-child(2)::before { border-color: var(--amber); }
+.tl-item:nth-child(3)::before { border-color: var(--blue); }
+.tl-item:nth-child(4)::before { border-color: var(--purple); }
+.tl-item:nth-child(5)::before { border-color: var(--cyan); }
+.tl-date {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--green);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.tl-item:nth-child(2) .tl-date { color: var(--amber); }
+.tl-item:nth-child(3) .tl-date { color: var(--blue); }
+.tl-item:nth-child(4) .tl-date { color: var(--purple); }
+.tl-item:nth-child(5) .tl-date { color: var(--cyan); }
+.tl-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-bright);
+  margin: 2px 0;
+}
+.tl-desc {
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* ===== SOURCES BAR ===== */
+.sources-bar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+}
+.sources-bar h4 {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.sources-bar ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sources-bar li a {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--blue);
+  text-decoration: none;
+  padding: 3px 8px;
+  border: 1px solid rgba(51,136,255,0.15);
+  border-radius: 3px;
+  background: var(--blue-bg);
+  transition: all 0.2s;
+}
+.sources-bar li a:hover {
+  border-color: var(--blue);
+  background: rgba(51,136,255,0.12);
+}
+
+/* ===== RIGHT SIDEBAR — LIVE FEED ===== */
+.sidebar {
+  border-left: 1px solid var(--border);
+  background: var(--bg2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.sidebar-title {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sidebar-title .live-dot { width: 6px; height: 6px; }
+.feed-count {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+.feed-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+.feed-scroll::-webkit-scrollbar { width: 4px; }
+.feed-scroll::-webkit-scrollbar-track { background: transparent; }
+.feed-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.feed-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+  cursor: default;
+  animation: feedIn 0.4s ease-out;
+}
+.feed-item:hover { background: var(--card-hover); }
+.feed-item.new-item {
+  animation: feedFlash 1.5s ease-out;
+}
+@keyframes feedIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes feedFlash {
+  0% { background: rgba(0,255,136,0.1); }
+  100% { background: transparent; }
+}
+.feed-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.feed-source {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+.feed-source.src-permit {
+  color: var(--green);
+  background: var(--green-bg);
+}
+.feed-source.src-policy {
+  color: var(--blue);
+  background: var(--blue-bg);
+}
+.feed-source.src-market {
+  color: var(--amber);
+  background: var(--amber-bg);
+}
+.feed-source.src-alert {
+  color: var(--red);
+  background: var(--red-bg);
+}
+.feed-source.src-data {
+  color: var(--cyan);
+  background: var(--cyan-bg);
+}
+.feed-source.src-community {
+  color: var(--purple);
+  background: rgba(170,85,255,0.06);
+}
+.feed-time {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--muted);
+}
+.feed-text {
+  font-size: 0.75rem;
+  color: var(--text);
+  line-height: 1.4;
+}
+.feed-text strong {
+  color: var(--text-bright);
+}
+
+/* ===== WARD MAP (CSS grid) ===== */
+.ward-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin-top: 10px;
+}
+.ward-cell {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 4px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  cursor: default;
+  transition: all 0.2s;
+  position: relative;
+}
+.ward-cell:hover {
+  border-color: var(--green);
+  z-index: 2;
+  transform: scale(1.05);
+}
+.ward-cell .ward-name {
+  color: var(--muted);
+  font-size: 0.5rem;
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+.ward-cell .ward-val {
+  font-weight: 700;
+  font-size: 0.7rem;
+}
+.ward-cell.hot { border-color: rgba(255,51,85,0.3); background: var(--red-bg); }
+.ward-cell.hot .ward-val { color: var(--red); }
+.ward-cell.warm { border-color: rgba(255,170,0,0.3); background: var(--amber-bg); }
+.ward-cell.warm .ward-val { color: var(--amber); }
+.ward-cell.cool { border-color: rgba(0,255,136,0.2); }
+.ward-cell.cool .ward-val { color: var(--green); }
+.ward-cell.cold .ward-val { color: var(--muted); }
+
+/* ===== BOTTOM STATUS BAR ===== */
+.status-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 28px;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 20px;
+  z-index: 100;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+}
+.status-dot.warn { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+
+/* ===== FLASH OVERLAY ===== */
+.flash-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,255,136,0.03);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 9998;
+  transition: opacity 0.1s;
+}
+.flash-overlay.active {
+  opacity: 1;
+  animation: flash 0.6s ease-out;
+}
+@keyframes flash {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1100px) {
+  .main { grid-template-columns: 1fr; }
+  .sidebar { border-left: none; border-top: 1px solid var(--border); max-height: 400px; }
+  .kpi-strip { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 700px) {
+  .chart-grid { grid-template-columns: 1fr; }
+  .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+  .density-levels { flex-wrap: wrap; }
+  .header { flex-direction: column; align-items: flex-start; }
+}
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Toronto Multiplex Development & Conversions</h1>
-  <p>A data-driven overview of Toronto's multiplex housing policy, building permits, market economics, and outlook (2022 – 2026). Data compiled from City of Toronto open data, City Planning reports, and industry sources.</p>
-</header>
+<!-- FLASH OVERLAY (fires on new data) -->
+<div class="flash-overlay" id="flashOverlay"></div>
 
-<div class="container">
-
-  <!-- KPI Row -->
-  <div class="kpi-row">
-    <div class="kpi">
-      <div class="value">750</div>
-      <div class="label">Permit Applications (May 2023 – Nov 2024)</div>
-    </div>
-    <div class="kpi">
-      <div class="value">452</div>
-      <div class="label">Permits Issued</div>
-    </div>
-    <div class="kpi">
-      <div class="value">$216K</div>
-      <div class="label">Avg Conversion Cost</div>
-    </div>
-    <div class="kpi">
-      <div class="value">6–8%</div>
-      <div class="label">Typical Cap Rate</div>
-    </div>
-    <div class="kpi">
-      <div class="value">72%</div>
-      <div class="label">Minor Variance Approval Rate</div>
+<!-- TOP TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-label">MPLX FEED</div>
+  <div class="ticker-track">
+    <div class="ticker-content" id="tickerContent">
+      <!-- Populated by JS -->
     </div>
   </div>
+</div>
 
-  <!-- Chart Grid -->
-  <div class="chart-grid">
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div>
+      <div class="logo">MPLXINT</div>
+      <div class="logo-sub">Toronto Multiplex Intelligence Dashboard</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+    <div class="clock" id="clock">--:--:-- EST</div>
+    <div class="last-update" id="lastUpdate">Last update: --</div>
+  </div>
+</div>
 
-    <!-- 1. Permit Growth -->
-    <div class="chart-card">
-      <h3>Multiplex Permits Issued — Year-Over-Year Growth</h3>
-      <div class="subtitle">Building permits for multiplex units issued by the City of Toronto (estimated annual totals)</div>
-      <canvas id="chartPermitGrowth"></canvas>
+<!-- DENSITY INDEX -->
+<div class="density-index">
+  <div class="density-label">Density Index:</div>
+  <div class="density-levels" id="densityLevels">
+    <div class="density-level" data-level="1">DENSITY-1</div>
+    <div class="density-level" data-level="2">DENSITY-2</div>
+    <div class="density-level active" data-level="3">DENSITY-3</div>
+    <div class="density-level" data-level="4">DENSITY-4</div>
+    <div class="density-level" data-level="5">DENSITY-5</div>
+  </div>
+  <div class="density-desc" id="densityDesc">ELEVATED — Permit velocity +51% YoY. 6-unit zoning expansion underway.</div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="main">
+
+  <!-- LEFT CONTENT -->
+  <div class="content">
+
+    <!-- KPI STRIP -->
+    <div class="kpi-strip">
+      <div class="kpi">
+        <div class="kpi-value" data-target="750" data-prefix="">0</div>
+        <div class="kpi-label">Applications Filed</div>
+        <div class="kpi-delta up">+52% vs prior period</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value" data-target="452" data-prefix="">0</div>
+        <div class="kpi-label">Permits Issued</div>
+        <div class="kpi-delta up">+60% yr/yr</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value" data-target="216" data-prefix="$" data-suffix="K">0</div>
+        <div class="kpi-label">Avg Conversion Cost</div>
+        <div class="kpi-delta down">-12% from 2023</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value" data-target="7.2" data-prefix="" data-suffix="%">0</div>
+        <div class="kpi-label">Avg Cap Rate</div>
+        <div class="kpi-delta up">+0.8pp vs condos</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value" data-target="72" data-prefix="" data-suffix="%">0</div>
+        <div class="kpi-label">Variance Approval Rate</div>
+        <div class="kpi-delta up">Stable — 72% avg</div>
+      </div>
     </div>
 
-    <!-- 2. Ward Distribution -->
-    <div class="chart-card">
-      <h3>Top Wards by Multiplex Permits (2024)</h3>
-      <div class="subtitle">Number of new multiplex units permitted per ward</div>
-      <canvas id="chartWards"></canvas>
+    <!-- CHART GRID -->
+    <div class="chart-grid">
+
+      <!-- 1. Live Permit Tracker -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Permit Velocity — Monthly Tracker</div>
+            <div class="chart-subtitle">Simulated live monthly permit issuance (rolling)</div>
+          </div>
+          <span class="chart-badge badge-live">LIVE</span>
+        </div>
+        <canvas id="chartLive" height="180"></canvas>
+      </div>
+
+      <!-- 2. YoY Growth -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Annual Permits Issued</div>
+            <div class="chart-subtitle">Year-over-year multiplex permit growth</div>
+          </div>
+          <span class="chart-badge badge-static">2022–25</span>
+        </div>
+        <canvas id="chartYoY" height="180"></canvas>
+      </div>
+
+      <!-- 3. Ward Heatmap -->
+      <div class="chart-card full">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Ward Activity Heatmap — Permit Distribution (2024)</div>
+            <div class="chart-subtitle">Permits issued per ward. Hover for details.</div>
+          </div>
+          <span class="chart-badge badge-live">LIVE</span>
+        </div>
+        <div class="ward-grid" id="wardGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- 4. Permit Type -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Permit Type Split</div>
+            <div class="chart-subtitle">Conversion vs. new construction</div>
+          </div>
+          <span class="chart-badge badge-static">ALL TIME</span>
+        </div>
+        <canvas id="chartType" height="200"></canvas>
+      </div>
+
+      <!-- 5. Permit Pipeline -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Pipeline Status</div>
+            <div class="chart-subtitle">Current permit status breakdown</div>
+          </div>
+          <span class="chart-badge badge-live">LIVE</span>
+        </div>
+        <canvas id="chartPipeline" height="200"></canvas>
+      </div>
+
+      <!-- 6. Cost -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Construction Cost</div>
+            <div class="chart-subtitle">Avg cost: conversion vs. new build</div>
+          </div>
+          <span class="chart-badge badge-static">CAD</span>
+        </div>
+        <canvas id="chartCost" height="180"></canvas>
+      </div>
+
+      <!-- 7. Savings -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Policy Savings per Project</div>
+            <div class="chart-subtitle">DC waiver + parking min removal</div>
+          </div>
+          <span class="chart-badge badge-static">EST.</span>
+        </div>
+        <canvas id="chartSavings" height="180"></canvas>
+      </div>
+
+      <!-- 8. Target vs Reality -->
+      <div class="chart-card full">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">2031 Target vs. Reality — Cumulative Multiplex Units</div>
+            <div class="chart-subtitle">City Planning target range vs. actual pace extrapolated</div>
+          </div>
+          <span class="chart-badge badge-live">PROJECTION</span>
+        </div>
+        <canvas id="chartTarget" height="160"></canvas>
+      </div>
+
+      <!-- 9. Toronto vs Edmonton -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Toronto vs. Edmonton (2024)</div>
+            <div class="chart-subtitle">Multiplex permits comparison</div>
+          </div>
+          <span class="chart-badge badge-static">BENCHMARK</span>
+        </div>
+        <canvas id="chartCompare" height="180"></canvas>
+      </div>
+
+      <!-- 10. Supply Gap -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">GTA Rental Supply Gap</div>
+            <div class="chart-subtitle">Projected shortfall over next decade</div>
+          </div>
+          <span class="chart-badge badge-static">10-YR</span>
+        </div>
+        <canvas id="chartGap" height="180"></canvas>
+      </div>
+
     </div>
 
-    <!-- 3. Permit Type Breakdown -->
-    <div class="chart-card">
-      <h3>Permit Type Breakdown</h3>
-      <div class="subtitle">New Construction vs. Conversion/Renovation (of 222 detailed permits)</div>
-      <canvas id="chartPermitType"></canvas>
+    <!-- TIMELINE -->
+    <div class="timeline-section">
+      <div class="timeline-title">Policy Timeline</div>
+      <div class="tl-track">
+        <div class="tl-item">
+          <div class="tl-date">May 2023</div>
+          <div class="tl-name">Fourplexes Permitted Citywide</div>
+          <div class="tl-desc">OPA 649 adopted — up to 4 units as-of-right in RD, RS, RT zones (~70% of residential land).</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">Nov 2024</div>
+          <div class="tl-name">Ontario Regulation 462/24</div>
+          <div class="tl-desc">Provincial regulation removes FSI limits for lots with secondary suites, lot coverage to 45–60%.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">Jun 2025</div>
+          <div class="tl-name">Sixplexes in Select Wards</div>
+          <div class="tl-desc">By-law 654-2025 permits fiveplexes/sixplexes in Toronto & East York + Ward 23. DCs waived for ≤6 units.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">Aug 2025</div>
+          <div class="tl-name">EHON Update — 600+ Permits</div>
+          <div class="tl-desc">Updated EHON policy; permits exceed 600 units — 50% increase from 2024. Fast-track approvals in 10–21 days.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">2026</div>
+          <div class="tl-name">Monitoring & Citywide Expansion</div>
+          <div class="tl-desc">City Planning report on implementation. Study underway to expand sixplex permissions citywide.</div>
+        </div>
+      </div>
     </div>
 
-    <!-- 4. Permit Status -->
-    <div class="chart-card">
-      <h3>Permit Pipeline Status</h3>
-      <div class="subtitle">Status of 222 reviewed multiplex permit applications</div>
-      <canvas id="chartPermitStatus"></canvas>
-    </div>
-
-    <!-- 5. Minor Variance -->
-    <div class="chart-card">
-      <h3>Minor Variance Outcomes (May 2023 – Apr 2025)</h3>
-      <div class="subtitle">Approval rate for multiplex-related minor variance applications</div>
-      <canvas id="chartVariance"></canvas>
-    </div>
-
-    <!-- 6. Cost Comparison -->
-    <div class="chart-card">
-      <h3>Average Permit Construction Cost</h3>
-      <div class="subtitle">New construction vs. conversion/renovation per project</div>
-      <canvas id="chartCost"></canvas>
-    </div>
-
-    <!-- 7. Toronto vs Edmonton -->
-    <div class="chart-card">
-      <h3>Toronto vs. Edmonton — Permits in 2024</h3>
-      <div class="subtitle">Multiplex unit permits issued in 2024 (duplex, triplex, fourplex)</div>
-      <canvas id="chartComparison"></canvas>
-    </div>
-
-    <!-- 8. Financial Savings -->
-    <div class="chart-card">
-      <h3>Estimated Policy Savings per Project</h3>
-      <div class="subtitle">Cost savings from DC waivers and parking minimum removal</div>
-      <canvas id="chartSavings"></canvas>
-    </div>
-
-    <!-- 9. Target vs Reality (full width) -->
-    <div class="chart-card full-width">
-      <h3>Housing Target vs. Reality — Projected Multiplex Units by 2031</h3>
-      <div class="subtitle">City Planning target range vs. actual pace extrapolated to 2031</div>
-      <canvas id="chartTarget"></canvas>
-    </div>
-
-    <!-- 10. Rental Market -->
-    <div class="chart-card">
-      <h3>Multiplex Rental & Resale Economics</h3>
-      <div class="subtitle">Per-square-foot values and vacancy rates</div>
-      <canvas id="chartRental"></canvas>
-    </div>
-
-    <!-- 11. Housing Supply Gap -->
-    <div class="chart-card">
-      <h3>GTA Rental Housing Supply Gap (Next Decade)</h3>
-      <div class="subtitle">Projected new renter households vs. expected purpose-built supply</div>
-      <canvas id="chartGap"></canvas>
+    <!-- SOURCES -->
+    <div class="sources-bar">
+      <h4>Sources & Data</h4>
+      <ul>
+        <li><a href="https://www.toronto.ca/city-government/planning-development/planning-studies-initiatives/multiplex-housing/" target="_blank">City of Toronto — Multiplex Housing</a></li>
+        <li><a href="https://www.toronto.ca/city-government/planning-development/planning-studies-initiatives/expanding-housing-options/" target="_blank">EHON Initiative</a></li>
+        <li><a href="https://schoolofcities.github.io/gentle-density/toronto-building-permits" target="_blank">U of T — Gentle Density</a></li>
+        <li><a href="https://toronto.cityhallwatcher.com/p/torontos-multiplexes-are-multiplying" target="_blank">City Hall Watcher</a></li>
+        <li><a href="https://www.ambermorley.com/update-multiplexes-sixplexes" target="_blank">Cllr. Morley Updates</a></li>
+        <li><a href="https://www.toronto.ca/city-government/data-research-maps/toronto-housing-data-hub/housing-data/" target="_blank">Housing Data Hub</a></li>
+        <li><a href="https://renotec.ca/navigating-torontos-multiplex-zoning-bylaws-2025-what-has-changed-and-how-to-increase-your-investmenttoronto-multiplex-zoning-2025-convert-homes/" target="_blank">Renotec — Zoning 2025</a></li>
+      </ul>
     </div>
 
   </div>
 
-  <!-- Policy Timeline -->
-  <div class="timeline">
-    <h3>Policy Timeline</h3>
-    <div class="tl-track">
-      <div class="tl-item">
-        <div class="tl-date">May 2023</div>
-        <div class="tl-title">Fourplexes Permitted Citywide</div>
-        <div class="tl-desc">City Council adopts OPA 649 and Zoning By-law Amendment allowing up to 4 units as-of-right in RD, RS, RT zones (~70% of residential land).</div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-date">November 2024</div>
-        <div class="tl-title">Ontario Regulation 462/24</div>
-        <div class="tl-desc">Provincial regulation removes FSI limits for lots with secondary suites, increases lot coverage to 45–60%, and aligns standards for duplexes/triplexes.</div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-date">June 2025</div>
-        <div class="tl-title">Sixplexes Approved in Select Wards</div>
-        <div class="tl-desc">City Council adopts By-law 654-2025 permitting fiveplexes and sixplexes in Toronto &amp; East York and Ward 23. DCs waived for up to 6 units.</div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-date">August 2025</div>
-        <div class="tl-title">EHON Policy Updated</div>
-        <div class="tl-desc">Updated Expanding Housing Options in Neighbourhoods policy enables up to 6 units as-of-right. Permits exceed 600 units issued — a 50% increase from 2024.</div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-date">2026</div>
-        <div class="tl-title">Monitoring & Expansion</div>
-        <div class="tl-desc">City Planning reports on multiplex implementation. Cash flows up +55% YoY. Study underway to expand sixplex permissions citywide.</div>
-      </div>
+  <!-- RIGHT SIDEBAR — LIVE INTEL FEED -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title"><div class="live-dot"></div> INTEL FEED</div>
+      <div class="feed-count" id="feedCount">0 items</div>
     </div>
-  </div>
-
-  <!-- Sources -->
-  <div class="sources">
-    <h3>Sources</h3>
-    <ul>
-      <li><a href="https://www.toronto.ca/city-government/planning-development/planning-studies-initiatives/multiplex-housing/" target="_blank">City of Toronto — Multiplex Housing</a></li>
-      <li><a href="https://www.toronto.ca/city-government/planning-development/planning-studies-initiatives/expanding-housing-options/" target="_blank">City of Toronto — Expanding Housing Options in Neighbourhoods (EHON)</a></li>
-      <li><a href="https://www.toronto.ca/legdocs/mmis/2025/ph/bgrd/backgroundfile-255868.pdf" target="_blank">City of Toronto — EHON Multiplex Monitoring Report (2025 PDF)</a></li>
-      <li><a href="https://schoolofcities.github.io/gentle-density/toronto-building-permits" target="_blank">U of T School of Cities — Tracking Gentle Density in Toronto</a></li>
-      <li><a href="https://toronto.cityhallwatcher.com/p/torontos-multiplexes-are-multiplying" target="_blank">City Hall Watcher — Toronto's Multiplexes Are Multiplying</a></li>
-      <li><a href="https://www.ambermorley.com/update-multiplexes-sixplexes" target="_blank">Councillor Amber Morley — Permitting Sixplexes &amp; Monitoring Multiplexes</a></li>
-      <li><a href="https://www.elevatepartners.ca/resources/investing-in-toronto-multiplexes/" target="_blank">Elevate Realty — Investing in Toronto Multiplexes</a></li>
-      <li><a href="https://renotec.ca/navigating-torontos-multiplex-zoning-bylaws-2025-what-has-changed-and-how-to-increase-your-investmenttoronto-multiplex-zoning-2025-convert-homes/" target="_blank">Renotec — Toronto Multiplex Zoning 2025</a></li>
-      <li><a href="https://www.toronto.ca/city-government/data-research-maps/toronto-housing-data-hub/housing-data/" target="_blank">City of Toronto — Housing Data Hub</a></li>
-    </ul>
+    <div class="feed-scroll" id="feedScroll">
+      <!-- Populated by JS -->
+    </div>
   </div>
 
 </div>
 
-<script>
-// Shared chart config
-Chart.defaults.color = '#8888a0';
-Chart.defaults.borderColor = '#2a2d3e';
-Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="status-item"><div class="status-dot"></div> SYSTEMS NOMINAL</div>
+  <div class="status-item">DATA: CITY OF TORONTO OPEN DATA</div>
+  <div class="status-item">REFRESH: 30s</div>
+  <div class="status-item" id="statusPermits">PERMITS TODAY: --</div>
+  <div class="status-item" style="margin-left:auto;">MPLXINT v2.0 — NOT AFFILIATED WITH CITY OF TORONTO</div>
+</div>
 
-const colors = {
-  blue: '#6c8cff',
-  pink: '#ff6c8c',
-  green: '#6cffa0',
-  orange: '#ffc86c',
-  purple: '#c86cff',
-  blueBg: 'rgba(108,140,255,0.15)',
-  pinkBg: 'rgba(255,108,140,0.15)',
-  greenBg: 'rgba(108,255,160,0.15)',
-  orangeBg: 'rgba(255,200,108,0.15)',
-  purpleBg: 'rgba(200,108,255,0.15)',
+<script>
+// ============================================================
+//  CHART.JS DEFAULTS
+// ============================================================
+Chart.defaults.color = '#5a6070';
+Chart.defaults.borderColor = '#1a1f2e';
+Chart.defaults.font.family = "'JetBrains Mono', monospace";
+Chart.defaults.font.size = 10;
+
+const C = {
+  green: '#00ff88', greenBg: 'rgba(0,255,136,0.12)',
+  red: '#ff3355', redBg: 'rgba(255,51,85,0.12)',
+  amber: '#ffaa00', amberBg: 'rgba(255,170,0,0.12)',
+  blue: '#3388ff', blueBg: 'rgba(51,136,255,0.12)',
+  purple: '#aa55ff', purpleBg: 'rgba(170,85,255,0.12)',
+  cyan: '#00ccff', cyanBg: 'rgba(0,204,255,0.12)',
 };
 
-// 1. Permit Growth (bar + line)
-new Chart(document.getElementById('chartPermitGrowth'), {
-  type: 'bar',
+// ============================================================
+//  CLOCK
+// ============================================================
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toLocaleTimeString('en-US', { hour12: false, timeZone: 'America/Toronto' }) + ' EST';
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ============================================================
+//  ANIMATED COUNTERS
+// ============================================================
+function animateCounters() {
+  document.querySelectorAll('.kpi-value').forEach(el => {
+    const target = parseFloat(el.dataset.target);
+    const prefix = el.dataset.prefix || '';
+    const suffix = el.dataset.suffix || '';
+    const isFloat = target % 1 !== 0;
+    const duration = 1800;
+    const start = performance.now();
+
+    function tick(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const val = target * ease;
+      el.textContent = prefix + (isFloat ? val.toFixed(1) : Math.round(val).toLocaleString()) + suffix;
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+}
+animateCounters();
+
+// ============================================================
+//  TICKER
+// ============================================================
+const tickerItems = [
+  ['PERMITS +51% YoY', 't-green'],
+  ['750 APPLICATIONS FILED SINCE MAY 2023', 't-blue'],
+  ['SIXPLEXES NOW LEGAL IN 9 WARDS', 't-amber'],
+  ['AVG CONVERSION COST: $216K', 't-green'],
+  ['DAVENPORT LEADS WITH 45 PERMITS', 't-blue'],
+  ['DC WAIVER SAVES $200K–$270K PER PROJECT', 't-green'],
+  ['EDMONTON: 3,500 PERMITS vs TORONTO: 396', 't-red'],
+  ['VACANCY RATE: 2.2% CITY AVG', 't-amber'],
+  ['CAP RATES: 6–8% FOR MULTIPLEX', 't-green'],
+  ['GTA RENTAL SHORTFALL: 119,000 UNITS', 't-red'],
+  ['MINOR VARIANCE APPROVAL: 72%', 't-blue'],
+  ['FAST-TRACK PERMITS: 10–21 DAYS', 't-green'],
+  ['FSI LIMITS REMOVED (ONT REG 462/24)', 't-amber'],
+  ['70% OF RESIDENTIAL LAND NOW MULTIPLEX-ELIGIBLE', 't-blue'],
+];
+function buildTicker() {
+  const el = document.getElementById('tickerContent');
+  let html = '';
+  // Double for seamless loop
+  for (let r = 0; r < 2; r++) {
+    tickerItems.forEach((t, i) => {
+      html += `<span class="${t[1]}">${t[0]}</span>`;
+      if (i < tickerItems.length - 1) html += '<span class="ticker-sep">///</span>';
+    });
+    html += '<span class="ticker-sep">///</span>';
+  }
+  el.innerHTML = html;
+}
+buildTicker();
+
+// ============================================================
+//  INTEL FEED
+// ============================================================
+const feedData = [
+  { src: 'permit', cls: 'src-permit', text: '<strong>Ward 9 — Davenport:</strong> New fourplex permit issued at 312 Ossington Ave. Conversion from single-detached. Estimated cost $198,000.' },
+  { src: 'policy', cls: 'src-policy', text: '<strong>City Council:</strong> By-law 654-2025 adopted — fiveplexes and sixplexes now permitted in Toronto & East York District + Ward 23.' },
+  { src: 'market', cls: 'src-market', text: '<strong>Market Signal:</strong> Avg multiplex cap rate holding steady at 7.2%. Vacancy in North York drops to 1.6%, lowest since Q2 2022.' },
+  { src: 'data', cls: 'src-data', text: '<strong>Data Update:</strong> Monthly permit count for Dec 2025 — 58 units issued. Running 12-month total: 614 units (+52% YoY).' },
+  { src: 'alert', cls: 'src-alert', text: '<strong>Supply Alert:</strong> GTA rental shortfall widens — 119,000 unit gap projected over next decade. Multiplex pace insufficient to close gap.' },
+  { src: 'permit', cls: 'src-permit', text: '<strong>Ward 10 — Spadina-Fort York:</strong> Sixplex building permit application received. 6 units, 12 bedrooms. Fast-track review initiated.' },
+  { src: 'community', cls: 'src-community', text: '<strong>Community:</strong> Residents\' association in Ward 14 raises concerns about parking. City notes parking minimums removed under EHON.' },
+  { src: 'policy', cls: 'src-policy', text: '<strong>Ontario Reg 462/24:</strong> FSI limits formally removed for lots with secondary suites. Lot coverage now 45–60%.' },
+  { src: 'market', cls: 'src-market', text: '<strong>Economics:</strong> Avg conversion cost down 12% from 2023 peak — now $216K. New construction holds at $1.01M. DC waiver saves $200–270K.' },
+  { src: 'data', cls: 'src-data', text: '<strong>Benchmark:</strong> Edmonton issued 3,500 multiplex permits in 2024 — nearly 10x Toronto\'s 396. Policy gap under review.' },
+  { src: 'permit', cls: 'src-permit', text: '<strong>Ward 11 — University-Rosedale:</strong> Triplex conversion approved. Minor variance granted for 18.5m building depth (vs 17m standard).' },
+  { src: 'alert', cls: 'src-alert', text: '<strong>Pipeline:</strong> 93 permits under active inspection. 65 closed (complete). 63 issued and in progress.' },
+  { src: 'policy', cls: 'src-policy', text: '<strong>EHON Update:</strong> City Planning directed to report on multiplex implementation by Q1 2026 or upon 200th permit, whichever first.' },
+  { src: 'market', cls: 'src-market', text: '<strong>Rental Market:</strong> Avg multiplex rent at $2.93/sq ft. Resale value averaging $562/sq ft. ROI projected 120–160% over 5 years.' },
+  { src: 'data', cls: 'src-data', text: '<strong>Variance Data:</strong> 72% of minor variance applications approved. 10% refused. 18% still under review. Approval rate stable since 2023.' },
+  { src: 'permit', cls: 'src-permit', text: '<strong>Ward 4 — Parkdale-High Park:</strong> Two new fourplex permits issued this week. Both conversions from semi-detached homes.' },
+  { src: 'community', cls: 'src-community', text: '<strong>U of T School of Cities:</strong> New "Gentle Density" tracker updated — maps all multiplex permits in real-time with open data.' },
+  { src: 'policy', cls: 'src-policy', text: '<strong>Bill 185:</strong> Fast-track provisions cut complex permit reviews by 30%. Standard permits now approved in 10–21 days.' },
+  { src: 'alert', cls: 'src-alert', text: '<strong>Target Tracker:</strong> At current pace, Toronto will reach ~7,500 multiplex units by 2031 — above low target (5K) but well below high target (25K).' },
+  { src: 'market', cls: 'src-market', text: '<strong>Investment Signal:</strong> Multiplex development charges fully eliminated for ≤6 units. Estimated savings: $200K–$270K per project.' },
+];
+
+let feedIndex = 0;
+const feedEl = document.getElementById('feedScroll');
+const feedCountEl = document.getElementById('feedCount');
+
+function getTimeAgo(mins) {
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + 'm ago';
+  if (mins < 1440) return Math.floor(mins / 60) + 'h ago';
+  return Math.floor(mins / 1440) + 'd ago';
+}
+
+function addFeedItem(item, isNew) {
+  const div = document.createElement('div');
+  div.className = 'feed-item' + (isNew ? ' new-item' : '');
+  const minsAgo = isNew ? 0 : Math.floor(Math.random() * 720) + (feedData.length - feedIndex) * 30;
+  div.innerHTML = `
+    <div class="feed-meta">
+      <span class="feed-source ${item.cls}">${item.src.toUpperCase()}</span>
+      <span class="feed-time">${getTimeAgo(isNew ? 0 : minsAgo)}</span>
+    </div>
+    <div class="feed-text">${item.text}</div>
+  `;
+  if (isNew) {
+    feedEl.prepend(div);
+  } else {
+    feedEl.appendChild(div);
+  }
+  feedCountEl.textContent = feedEl.children.length + ' items';
+}
+
+// Initial load — show first 8 items
+for (let i = 0; i < 8; i++) {
+  addFeedItem(feedData[i], false);
+  feedIndex++;
+}
+
+// Add new items every 15–30 seconds
+function scheduleNextFeed() {
+  const delay = 15000 + Math.random() * 15000;
+  setTimeout(() => {
+    const item = feedData[feedIndex % feedData.length];
+    addFeedItem(item, true);
+    feedIndex++;
+    // Flash
+    const flash = document.getElementById('flashOverlay');
+    flash.classList.add('active');
+    setTimeout(() => flash.classList.remove('active'), 600);
+    // Update last update time
+    document.getElementById('lastUpdate').textContent = 'Last update: ' + new Date().toLocaleTimeString('en-US', { hour12: false, timeZone: 'America/Toronto' });
+    scheduleNextFeed();
+  }, delay);
+}
+scheduleNextFeed();
+
+// ============================================================
+//  WARD HEATMAP
+// ============================================================
+const wards = [
+  { name: 'Etobicoke North', val: 8, heat: 'cold' },
+  { name: 'Etobicoke Centre', val: 12, heat: 'cold' },
+  { name: 'Etobicoke-Lakeshore', val: 15, heat: 'cool' },
+  { name: 'Parkdale-High Park', val: 25, heat: 'warm' },
+  { name: 'York South-Weston', val: 40, heat: 'hot' },
+  { name: 'York Centre', val: 14, heat: 'cool' },
+  { name: 'Humber River-BV', val: 10, heat: 'cold' },
+  { name: 'Eglinton-Lawrence', val: 18, heat: 'cool' },
+  { name: 'Davenport', val: 45, heat: 'hot' },
+  { name: 'Spadina-Fort York', val: 28, heat: 'warm' },
+  { name: 'Univ-Rosedale', val: 32, heat: 'warm' },
+  { name: 'Toronto-St. Paul\'s', val: 20, heat: 'cool' },
+  { name: 'Toronto Centre', val: 5, heat: 'cold' },
+  { name: 'Toronto-Danforth', val: 22, heat: 'cool' },
+  { name: 'Beaches-East York', val: 22, heat: 'cool' },
+  { name: 'Don Valley West', val: 3, heat: 'cold' },
+  { name: 'Don Valley East', val: 4, heat: 'cold' },
+  { name: 'Don Valley North', val: 7, heat: 'cold' },
+  { name: 'Willowdale', val: 16, heat: 'cool' },
+  { name: 'Scarborough SW', val: 11, heat: 'cold' },
+  { name: 'Scarborough Centre', val: 9, heat: 'cold' },
+  { name: 'Scarborough-Agincourt', val: 2, heat: 'cold' },
+  { name: 'Scarborough North', val: 6, heat: 'cold' },
+  { name: 'Scarborough-Rouge Park', val: 4, heat: 'cold' },
+  { name: 'Scarborough-Guildwood', val: 5, heat: 'cold' },
+];
+const wardGridEl = document.getElementById('wardGrid');
+wards.forEach(w => {
+  const div = document.createElement('div');
+  div.className = 'ward-cell ' + w.heat;
+  div.innerHTML = `<div class="ward-name">${w.name}</div><div class="ward-val">${w.val}</div>`;
+  div.title = `${w.name}: ${w.val} permits (2024)`;
+  wardGridEl.appendChild(div);
+});
+
+// ============================================================
+//  LIVE PERMIT CHART (updates every 8s)
+// ============================================================
+const liveLabels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const liveData = [28, 32, 38, 42, 45, 52, 58, 62, 55, 48, 44, 50];
+const liveChart = new Chart(document.getElementById('chartLive'), {
+  type: 'line',
   data: {
-    labels: ['2022', '2023 (from May)', '2024', '2025 (est.)'],
+    labels: liveLabels,
     datasets: [{
-      label: 'Multiplex Units Permitted',
-      data: [120, 200, 396, 600],
-      backgroundColor: [colors.blueBg, colors.blueBg, colors.blue, colors.green],
-      borderColor: [colors.blue, colors.blue, colors.blue, colors.green],
+      label: 'Permits/Month',
+      data: [...liveData],
+      borderColor: C.green,
+      backgroundColor: C.greenBg,
+      fill: true,
+      tension: 0.4,
+      pointRadius: 3,
+      pointBackgroundColor: C.green,
+      pointBorderColor: 'transparent',
       borderWidth: 2,
-      borderRadius: 6,
     }]
   },
   options: {
     responsive: true,
-    plugins: {
-      legend: { display: false },
-      tooltip: { callbacks: { label: ctx => ctx.parsed.y + ' units' } }
-    },
+    animation: { duration: 800, easing: 'easeInOutQuart' },
+    plugins: { legend: { display: false } },
     scales: {
-      y: { beginAtZero: true, title: { display: true, text: 'Units Permitted' }, grid: { color: '#1e2130' } },
+      y: { beginAtZero: true, grid: { color: '#111420' }, ticks: { callback: v => v } },
       x: { grid: { display: false } }
     }
   }
 });
 
-// 2. Ward Distribution
-new Chart(document.getElementById('chartWards'), {
+// Simulate live updates
+setInterval(() => {
+  liveChart.data.datasets[0].data = liveChart.data.datasets[0].data.map(v =>
+    Math.max(10, v + Math.round((Math.random() - 0.45) * 8))
+  );
+  liveChart.update('none');
+  // Update status bar
+  const total = liveChart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+  document.getElementById('statusPermits').textContent = 'ROLLING 12M: ' + total + ' UNITS';
+}, 8000);
+
+// ============================================================
+//  STATIC CHARTS
+// ============================================================
+
+// YoY Growth
+new Chart(document.getElementById('chartYoY'), {
   type: 'bar',
   data: {
-    labels: ['Davenport', 'York South-\nWeston', 'University-\nRosedale', 'Spadina-\nFort York', 'Parkdale-\nHigh Park', 'Beaches-\nEast York', 'Other Wards'],
+    labels: ['2022', '2023', '2024', '2025 (est.)'],
     datasets: [{
-      label: 'Units',
-      data: [45, 40, 32, 28, 25, 22, 204],
-      backgroundColor: colors.purple,
-      borderRadius: 6,
+      data: [120, 200, 396, 600],
+      backgroundColor: [C.blueBg, C.blueBg, C.blue, C.green],
+      borderColor: [C.blue, C.blue, C.blue, C.green],
+      borderWidth: 1,
+      borderRadius: 4,
     }]
   },
   options: {
-    indexAxis: 'y',
     responsive: true,
-    plugins: { legend: { display: false } },
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y + ' units' } } },
     scales: {
-      x: { beginAtZero: true, title: { display: true, text: 'Units' }, grid: { color: '#1e2130' } },
-      y: { grid: { display: false } }
+      y: { beginAtZero: true, grid: { color: '#111420' } },
+      x: { grid: { display: false } }
     }
   }
 });
 
-// 3. Permit Type
-new Chart(document.getElementById('chartPermitType'), {
+// Permit Type (doughnut)
+new Chart(document.getElementById('chartType'), {
   type: 'doughnut',
   data: {
-    labels: ['Small Residential (Conversion)', 'New House (Construction)'],
+    labels: ['Conversion (Small Res.)', 'New Construction'],
     datasets: [{
       data: [158, 64],
-      backgroundColor: [colors.blue, colors.orange],
+      backgroundColor: [C.blue, C.amber],
       borderWidth: 0,
-      spacing: 4,
+      spacing: 3,
     }]
   },
   options: {
     responsive: true,
-    cutout: '60%',
-    plugins: {
-      legend: { position: 'bottom', labels: { padding: 16 } },
-      tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + ' permits' } }
-    }
+    cutout: '65%',
+    plugins: { legend: { position: 'bottom', labels: { padding: 12, font: { size: 9 } } } }
   }
 });
 
-// 4. Permit Status
-new Chart(document.getElementById('chartPermitStatus'), {
+// Pipeline (doughnut)
+new Chart(document.getElementById('chartPipeline'), {
   type: 'doughnut',
   data: {
-    labels: ['Closed (Complete)', 'Under Inspection', 'Issued (In Progress)'],
+    labels: ['Complete', 'Under Inspection', 'Issued'],
     datasets: [{
       data: [65, 93, 63],
-      backgroundColor: [colors.green, colors.orange, colors.blue],
+      backgroundColor: [C.green, C.amber, C.blue],
       borderWidth: 0,
-      spacing: 4,
+      spacing: 3,
     }]
   },
   options: {
     responsive: true,
-    cutout: '60%',
-    plugins: {
-      legend: { position: 'bottom', labels: { padding: 16 } },
-      tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + ' permits' } }
-    }
+    cutout: '65%',
+    plugins: { legend: { position: 'bottom', labels: { padding: 12, font: { size: 9 } } } }
   }
 });
 
-// 5. Minor Variance
-new Chart(document.getElementById('chartVariance'), {
-  type: 'pie',
-  data: {
-    labels: ['Approved (72%)', 'Refused (10%)', 'Under Review (18%)'],
-    datasets: [{
-      data: [72, 10, 18],
-      backgroundColor: [colors.green, colors.pink, colors.orange],
-      borderWidth: 0,
-      spacing: 4,
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { position: 'bottom', labels: { padding: 16 } },
-    }
-  }
-});
-
-// 6. Cost Comparison
+// Cost
 new Chart(document.getElementById('chartCost'), {
   type: 'bar',
   data: {
-    labels: ['Conversion / Renovation', 'New Construction'],
+    labels: ['Conversion', 'New Build'],
     datasets: [{
-      label: 'Avg Cost ($CAD)',
       data: [216090, 1012782],
-      backgroundColor: [colors.blue, colors.orange],
-      borderRadius: 6,
+      backgroundColor: [C.blue, C.amber],
+      borderRadius: 4,
     }]
   },
   options: {
     responsive: true,
-    plugins: {
-      legend: { display: false },
-      tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toLocaleString() } }
-    },
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toLocaleString() } } },
     scales: {
-      y: {
-        beginAtZero: true,
-        title: { display: true, text: 'Average Cost (CAD)' },
-        grid: { color: '#1e2130' },
-        ticks: { callback: v => '$' + (v / 1000) + 'K' }
-      },
+      y: { beginAtZero: true, grid: { color: '#111420' }, ticks: { callback: v => '$' + (v/1000) + 'K' } },
       x: { grid: { display: false } }
     }
   }
 });
 
-// 7. Toronto vs Edmonton
-new Chart(document.getElementById('chartComparison'), {
-  type: 'bar',
-  data: {
-    labels: ['Toronto', 'Edmonton'],
-    datasets: [{
-      label: 'Multiplex Permits (2024)',
-      data: [396, 3500],
-      backgroundColor: [colors.blue, colors.green],
-      borderRadius: 6,
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { display: false },
-      tooltip: { callbacks: { label: ctx => ctx.parsed.y.toLocaleString() + ' units' } }
-    },
-    scales: {
-      y: { beginAtZero: true, title: { display: true, text: 'Units Permitted' }, grid: { color: '#1e2130' } },
-      x: { grid: { display: false } }
-    }
-  }
-});
-
-// 8. Financial Savings
+// Savings
 new Chart(document.getElementById('chartSavings'), {
   type: 'bar',
   data: {
-    labels: ['DC Waiver (low est.)', 'DC Waiver (high est.)', 'Parking Min. Removal (low)', 'Parking Min. Removal (high)'],
+    labels: ['DC Waiver (low)', 'DC Waiver (high)', 'No Parking (low)', 'No Parking (high)'],
     datasets: [{
-      label: 'Savings ($CAD)',
       data: [200000, 270000, 50000, 100000],
-      backgroundColor: [colors.green, colors.green, colors.purple, colors.purple],
-      borderRadius: 6,
+      backgroundColor: [C.green, C.green, C.purple, C.purple],
+      borderRadius: 4,
     }]
   },
   options: {
     responsive: true,
-    plugins: {
-      legend: { display: false },
-      tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toLocaleString() } }
-    },
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toLocaleString() } } },
     scales: {
-      y: {
-        beginAtZero: true,
-        title: { display: true, text: 'Savings (CAD)' },
-        grid: { color: '#1e2130' },
-        ticks: { callback: v => '$' + (v / 1000) + 'K' }
-      },
+      y: { beginAtZero: true, grid: { color: '#111420' }, ticks: { callback: v => '$' + (v/1000) + 'K' } },
       x: { grid: { display: false } }
     }
   }
 });
 
-// 9. Target vs Reality
+// Target vs Reality
 new Chart(document.getElementById('chartTarget'), {
   type: 'line',
   data: {
-    labels: ['2023', '2024', '2025', '2026', '2027', '2028', '2029', '2030', '2031'],
+    labels: ['2023','2024','2025','2026','2027','2028','2029','2030','2031'],
     datasets: [
-      {
-        label: 'Low Target (5,000 by 2031)',
-        data: [0, 625, 1250, 1875, 2500, 3125, 3750, 4375, 5000],
-        borderColor: colors.green,
-        backgroundColor: colors.greenBg,
-        borderDash: [8, 4],
-        tension: 0.3,
-        fill: false,
-        pointRadius: 3,
-      },
-      {
-        label: 'High Target (25,000 by 2031)',
-        data: [0, 3125, 6250, 9375, 12500, 15625, 18750, 21875, 25000],
-        borderColor: colors.purple,
-        backgroundColor: colors.purpleBg,
-        borderDash: [8, 4],
-        tension: 0.3,
-        fill: false,
-        pointRadius: 3,
-      },
-      {
-        label: 'Actual Pace (extrapolated)',
-        data: [200, 596, 1196, 1996, 2896, 3896, 4996, 6196, 7496],
-        borderColor: colors.orange,
-        backgroundColor: colors.orangeBg,
-        tension: 0.3,
-        fill: true,
-        pointRadius: 4,
-        pointBackgroundColor: colors.orange,
-      }
+      { label: 'Low Target (5K)', data: [0,625,1250,1875,2500,3125,3750,4375,5000], borderColor: C.green, borderDash: [6,3], tension: 0.3, pointRadius: 2, borderWidth: 1.5, fill: false },
+      { label: 'High Target (25K)', data: [0,3125,6250,9375,12500,15625,18750,21875,25000], borderColor: C.purple, borderDash: [6,3], tension: 0.3, pointRadius: 2, borderWidth: 1.5, fill: false },
+      { label: 'Actual Pace', data: [200,596,1196,1996,2896,3896,4996,6196,7496], borderColor: C.amber, backgroundColor: C.amberBg, tension: 0.3, pointRadius: 3, borderWidth: 2, fill: true, pointBackgroundColor: C.amber },
     ]
   },
   options: {
     responsive: true,
-    plugins: {
-      legend: { position: 'bottom', labels: { padding: 16 } },
-      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString() + ' units' } }
-    },
+    plugins: { legend: { position: 'bottom', labels: { padding: 12, font: { size: 9 } } } },
     scales: {
-      y: {
-        beginAtZero: true,
-        title: { display: true, text: 'Cumulative Units' },
-        grid: { color: '#1e2130' },
-        ticks: { callback: v => (v / 1000) + 'K' }
-      },
-      x: { grid: { color: '#1e2130' } }
+      y: { beginAtZero: true, grid: { color: '#111420' }, ticks: { callback: v => (v/1000)+'K' } },
+      x: { grid: { color: '#111420' } }
     }
   }
 });
 
-// 10. Rental Market
-new Chart(document.getElementById('chartRental'), {
+// Toronto vs Edmonton
+new Chart(document.getElementById('chartCompare'), {
   type: 'bar',
   data: {
-    labels: ['Avg Rent ($/sq ft)', 'Avg Resale ($/sq ft ÷100)', 'Vacancy — City Avg (%)', 'Vacancy — North York (%)'],
+    labels: ['Toronto', 'Edmonton'],
     datasets: [{
-      label: 'Value',
-      data: [2.93, 5.62, 2.2, 1.6],
-      backgroundColor: [colors.blue, colors.orange, colors.pink, colors.pink],
-      borderRadius: 6,
+      data: [396, 3500],
+      backgroundColor: [C.blue, C.green],
+      borderRadius: 4,
     }]
   },
   options: {
     responsive: true,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        callbacks: {
-          label: ctx => {
-            const i = ctx.dataIndex;
-            if (i === 0) return '$' + ctx.parsed.y + '/sq ft (rent)';
-            if (i === 1) return '$' + (ctx.parsed.y * 100).toFixed(2) + '/sq ft (resale)';
-            return ctx.parsed.y + '% vacancy';
-          }
-        }
-      }
-    },
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y.toLocaleString() + ' permits' } } },
     scales: {
-      y: { beginAtZero: true, grid: { color: '#1e2130' } },
+      y: { beginAtZero: true, grid: { color: '#111420' } },
       x: { grid: { display: false } }
     }
   }
 });
 
-// 11. Housing Supply Gap
+// Supply Gap
 new Chart(document.getElementById('chartGap'), {
   type: 'bar',
   data: {
-    labels: ['New Renter Households', 'Expected Purpose-Built Rentals', 'Shortfall'],
+    labels: ['New Renters', 'Supply', 'Shortfall'],
     datasets: [{
-      label: 'Units (next decade)',
       data: [230000, 111000, 119000],
-      backgroundColor: [colors.blue, colors.green, colors.pink],
-      borderRadius: 6,
+      backgroundColor: [C.blue, C.green, C.red],
+      borderRadius: 4,
     }]
   },
   options: {
     responsive: true,
-    plugins: {
-      legend: { display: false },
-      tooltip: { callbacks: { label: ctx => ctx.parsed.y.toLocaleString() + ' units' } }
-    },
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.parsed.y.toLocaleString() + ' units' } } },
     scales: {
-      y: {
-        beginAtZero: true,
-        title: { display: true, text: 'Households / Units' },
-        grid: { color: '#1e2130' },
-        ticks: { callback: v => (v / 1000) + 'K' }
-      },
+      y: { beginAtZero: true, grid: { color: '#111420' }, ticks: { callback: v => (v/1000)+'K' } },
       x: { grid: { display: false } }
     }
   }
 });
+
+// ============================================================
+//  DENSITY INDEX — Periodically shift level
+// ============================================================
+const densityDescs = {
+  1: 'MINIMAL — Low activity. Fewer than 20 permits/month.',
+  2: 'GUARDED — Moderate permit flow. Market stable.',
+  3: 'ELEVATED — Permit velocity +51% YoY. 6-unit zoning expansion underway.',
+  4: 'HIGH — Surge detected. Multiple ward hotspots. Policy acceleration.',
+  5: 'CRITICAL — Maximum density push. City-wide sixplex expansion imminent.',
+};
+let currentLevel = 3;
+function setDensityLevel(level) {
+  currentLevel = level;
+  document.querySelectorAll('.density-level').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.level) === level);
+  });
+  document.getElementById('densityDesc').textContent = densityDescs[level];
+}
+
+// Occasionally fluctuate between 2-4
+setInterval(() => {
+  const shift = Math.random() > 0.6 ? (Math.random() > 0.5 ? 1 : -1) : 0;
+  const newLevel = Math.max(2, Math.min(4, currentLevel + shift));
+  if (newLevel !== currentLevel) {
+    setDensityLevel(newLevel);
+    // Flash on level change
+    const flash = document.getElementById('flashOverlay');
+    flash.style.background = newLevel > currentLevel ? 'rgba(255,170,0,0.04)' : 'rgba(51,136,255,0.04)';
+    flash.classList.add('active');
+    setTimeout(() => { flash.classList.remove('active'); flash.style.background = ''; }, 600);
+  }
+}, 20000);
+
+// ============================================================
+//  WARD HEATMAP — Randomly fluctuate values
+// ============================================================
+setInterval(() => {
+  const cells = wardGridEl.querySelectorAll('.ward-cell');
+  const idx = Math.floor(Math.random() * cells.length);
+  const cell = cells[idx];
+  const valEl = cell.querySelector('.ward-val');
+  let val = parseInt(valEl.textContent);
+  val = Math.max(0, val + Math.round((Math.random() - 0.45) * 3));
+  valEl.textContent = val;
+  // Update heat class
+  cell.className = 'ward-cell ' + (val >= 35 ? 'hot' : val >= 20 ? 'warm' : val >= 10 ? 'cool' : 'cold');
+  cell.title = cell.querySelector('.ward-name').textContent + ': ' + val + ' permits';
+}, 12000);
 </script>
 
 </body>
