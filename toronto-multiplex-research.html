@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toronto Multiplex Development & Conversions — Research Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d2e;
+    --border: #2a2d3e;
+    --text: #e0e0e6;
+    --muted: #8888a0;
+    --accent: #6c8cff;
+    --accent2: #ff6c8c;
+    --accent3: #6cffa0;
+    --accent4: #ffc86c;
+    --accent5: #c86cff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 0 0 60px 0;
+  }
+  header {
+    background: linear-gradient(135deg, #1a1d2e 0%, #252840 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 20px 30px;
+    text-align: center;
+  }
+  header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent5));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  header p {
+    color: var(--muted);
+    font-size: 1rem;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+
+  /* KPI row */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .kpi {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 20px;
+    text-align: center;
+  }
+  .kpi .value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .kpi .label {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .kpi:nth-child(2) .value { color: var(--accent3); }
+  .kpi:nth-child(3) .value { color: var(--accent4); }
+  .kpi:nth-child(4) .value { color: var(--accent2); }
+  .kpi:nth-child(5) .value { color: var(--accent5); }
+
+  /* Chart grid */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .chart-card h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .chart-card .subtitle {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  .chart-card canvas { width: 100% !important; }
+
+  .full-width { grid-column: 1 / -1; }
+
+  /* Timeline */
+  .timeline {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 28px 20px;
+    margin-bottom: 32px;
+  }
+  .timeline h3 { font-size: 1.1rem; margin-bottom: 20px; }
+  .tl-track {
+    position: relative;
+    padding-left: 28px;
+    border-left: 2px solid var(--border);
+  }
+  .tl-item {
+    position: relative;
+    padding-bottom: 22px;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -34px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+  }
+  .tl-item:nth-child(2)::before { background: var(--accent3); }
+  .tl-item:nth-child(3)::before { background: var(--accent4); }
+  .tl-item:nth-child(4)::before { background: var(--accent2); }
+  .tl-item:nth-child(5)::before { background: var(--accent5); }
+  .tl-date { font-size: 0.78rem; color: var(--accent); font-weight: 600; text-transform: uppercase; }
+  .tl-title { font-weight: 600; margin: 2px 0; }
+  .tl-desc { font-size: 0.85rem; color: var(--muted); }
+
+  /* Sources */
+  .sources {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .sources h3 { margin-bottom: 12px; font-size: 1rem; }
+  .sources ul { list-style: none; padding: 0; }
+  .sources li {
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+  .sources li:last-child { border-bottom: none; }
+  .sources a { color: var(--accent); text-decoration: none; }
+  .sources a:hover { text-decoration: underline; }
+
+  @media (max-width: 600px) {
+    .chart-grid { grid-template-columns: 1fr; }
+    header h1 { font-size: 1.5rem; }
+    .kpi .value { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Toronto Multiplex Development & Conversions</h1>
+  <p>A data-driven overview of Toronto's multiplex housing policy, building permits, market economics, and outlook (2022 – 2026). Data compiled from City of Toronto open data, City Planning reports, and industry sources.</p>
+</header>
+
+<div class="container">
+
+  <!-- KPI Row -->
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="value">750</div>
+      <div class="label">Permit Applications (May 2023 – Nov 2024)</div>
+    </div>
+    <div class="kpi">
+      <div class="value">452</div>
+      <div class="label">Permits Issued</div>
+    </div>
+    <div class="kpi">
+      <div class="value">$216K</div>
+      <div class="label">Avg Conversion Cost</div>
+    </div>
+    <div class="kpi">
+      <div class="value">6–8%</div>
+      <div class="label">Typical Cap Rate</div>
+    </div>
+    <div class="kpi">
+      <div class="value">72%</div>
+      <div class="label">Minor Variance Approval Rate</div>
+    </div>
+  </div>
+
+  <!-- Chart Grid -->
+  <div class="chart-grid">
+
+    <!-- 1. Permit Growth -->
+    <div class="chart-card">
+      <h3>Multiplex Permits Issued — Year-Over-Year Growth</h3>
+      <div class="subtitle">Building permits for multiplex units issued by the City of Toronto (estimated annual totals)</div>
+      <canvas id="chartPermitGrowth"></canvas>
+    </div>
+
+    <!-- 2. Ward Distribution -->
+    <div class="chart-card">
+      <h3>Top Wards by Multiplex Permits (2024)</h3>
+      <div class="subtitle">Number of new multiplex units permitted per ward</div>
+      <canvas id="chartWards"></canvas>
+    </div>
+
+    <!-- 3. Permit Type Breakdown -->
+    <div class="chart-card">
+      <h3>Permit Type Breakdown</h3>
+      <div class="subtitle">New Construction vs. Conversion/Renovation (of 222 detailed permits)</div>
+      <canvas id="chartPermitType"></canvas>
+    </div>
+
+    <!-- 4. Permit Status -->
+    <div class="chart-card">
+      <h3>Permit Pipeline Status</h3>
+      <div class="subtitle">Status of 222 reviewed multiplex permit applications</div>
+      <canvas id="chartPermitStatus"></canvas>
+    </div>
+
+    <!-- 5. Minor Variance -->
+    <div class="chart-card">
+      <h3>Minor Variance Outcomes (May 2023 – Apr 2025)</h3>
+      <div class="subtitle">Approval rate for multiplex-related minor variance applications</div>
+      <canvas id="chartVariance"></canvas>
+    </div>
+
+    <!-- 6. Cost Comparison -->
+    <div class="chart-card">
+      <h3>Average Permit Construction Cost</h3>
+      <div class="subtitle">New construction vs. conversion/renovation per project</div>
+      <canvas id="chartCost"></canvas>
+    </div>
+
+    <!-- 7. Toronto vs Edmonton -->
+    <div class="chart-card">
+      <h3>Toronto vs. Edmonton — Permits in 2024</h3>
+      <div class="subtitle">Multiplex unit permits issued in 2024 (duplex, triplex, fourplex)</div>
+      <canvas id="chartComparison"></canvas>
+    </div>
+
+    <!-- 8. Financial Savings -->
+    <div class="chart-card">
+      <h3>Estimated Policy Savings per Project</h3>
+      <div class="subtitle">Cost savings from DC waivers and parking minimum removal</div>
+      <canvas id="chartSavings"></canvas>
+    </div>
+
+    <!-- 9. Target vs Reality (full width) -->
+    <div class="chart-card full-width">
+      <h3>Housing Target vs. Reality — Projected Multiplex Units by 2031</h3>
+      <div class="subtitle">City Planning target range vs. actual pace extrapolated to 2031</div>
+      <canvas id="chartTarget"></canvas>
+    </div>
+
+    <!-- 10. Rental Market -->
+    <div class="chart-card">
+      <h3>Multiplex Rental & Resale Economics</h3>
+      <div class="subtitle">Per-square-foot values and vacancy rates</div>
+      <canvas id="chartRental"></canvas>
+    </div>
+
+    <!-- 11. Housing Supply Gap -->
+    <div class="chart-card">
+      <h3>GTA Rental Housing Supply Gap (Next Decade)</h3>
+      <div class="subtitle">Projected new renter households vs. expected purpose-built supply</div>
+      <canvas id="chartGap"></canvas>
+    </div>
+
+  </div>
+
+  <!-- Policy Timeline -->
+  <div class="timeline">
+    <h3>Policy Timeline</h3>
+    <div class="tl-track">
+      <div class="tl-item">
+        <div class="tl-date">May 2023</div>
+        <div class="tl-title">Fourplexes Permitted Citywide</div>
+        <div class="tl-desc">City Council adopts OPA 649 and Zoning By-law Amendment allowing up to 4 units as-of-right in RD, RS, RT zones (~70% of residential land).</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">November 2024</div>
+        <div class="tl-title">Ontario Regulation 462/24</div>
+        <div class="tl-desc">Provincial regulation removes FSI limits for lots with secondary suites, increases lot coverage to 45–60%, and aligns standards for duplexes/triplexes.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">June 2025</div>
+        <div class="tl-title">Sixplexes Approved in Select Wards</div>
+        <div class="tl-desc">City Council adopts By-law 654-2025 permitting fiveplexes and sixplexes in Toronto &amp; East York and Ward 23. DCs waived for up to 6 units.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">August 2025</div>
+        <div class="tl-title">EHON Policy Updated</div>
+        <div class="tl-desc">Updated Expanding Housing Options in Neighbourhoods policy enables up to 6 units as-of-right. Permits exceed 600 units issued — a 50% increase from 2024.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-date">2026</div>
+        <div class="tl-title">Monitoring & Expansion</div>
+        <div class="tl-desc">City Planning reports on multiplex implementation. Cash flows up +55% YoY. Study underway to expand sixplex permissions citywide.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sources -->
+  <div class="sources">
+    <h3>Sources</h3>
+    <ul>
+      <li><a href="https://www.toronto.ca/city-government/planning-development/planning-studies-initiatives/multiplex-housing/" target="_blank">City of Toronto — Multiplex Housing</a></li>
+      <li><a href="https://www.toronto.ca/city-government/planning-development/planning-studies-initiatives/expanding-housing-options/" target="_blank">City of Toronto — Expanding Housing Options in Neighbourhoods (EHON)</a></li>
+      <li><a href="https://www.toronto.ca/legdocs/mmis/2025/ph/bgrd/backgroundfile-255868.pdf" target="_blank">City of Toronto — EHON Multiplex Monitoring Report (2025 PDF)</a></li>
+      <li><a href="https://schoolofcities.github.io/gentle-density/toronto-building-permits" target="_blank">U of T School of Cities — Tracking Gentle Density in Toronto</a></li>
+      <li><a href="https://toronto.cityhallwatcher.com/p/torontos-multiplexes-are-multiplying" target="_blank">City Hall Watcher — Toronto's Multiplexes Are Multiplying</a></li>
+      <li><a href="https://www.ambermorley.com/update-multiplexes-sixplexes" target="_blank">Councillor Amber Morley — Permitting Sixplexes &amp; Monitoring Multiplexes</a></li>
+      <li><a href="https://www.elevatepartners.ca/resources/investing-in-toronto-multiplexes/" target="_blank">Elevate Realty — Investing in Toronto Multiplexes</a></li>
+      <li><a href="https://renotec.ca/navigating-torontos-multiplex-zoning-bylaws-2025-what-has-changed-and-how-to-increase-your-investmenttoronto-multiplex-zoning-2025-convert-homes/" target="_blank">Renotec — Toronto Multiplex Zoning 2025</a></li>
+      <li><a href="https://www.toronto.ca/city-government/data-research-maps/toronto-housing-data-hub/housing-data/" target="_blank">City of Toronto — Housing Data Hub</a></li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+// Shared chart config
+Chart.defaults.color = '#8888a0';
+Chart.defaults.borderColor = '#2a2d3e';
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+
+const colors = {
+  blue: '#6c8cff',
+  pink: '#ff6c8c',
+  green: '#6cffa0',
+  orange: '#ffc86c',
+  purple: '#c86cff',
+  blueBg: 'rgba(108,140,255,0.15)',
+  pinkBg: 'rgba(255,108,140,0.15)',
+  greenBg: 'rgba(108,255,160,0.15)',
+  orangeBg: 'rgba(255,200,108,0.15)',
+  purpleBg: 'rgba(200,108,255,0.15)',
+};
+
+// 1. Permit Growth (bar + line)
+new Chart(document.getElementById('chartPermitGrowth'), {
+  type: 'bar',
+  data: {
+    labels: ['2022', '2023 (from May)', '2024', '2025 (est.)'],
+    datasets: [{
+      label: 'Multiplex Units Permitted',
+      data: [120, 200, 396, 600],
+      backgroundColor: [colors.blueBg, colors.blueBg, colors.blue, colors.green],
+      borderColor: [colors.blue, colors.blue, colors.blue, colors.green],
+      borderWidth: 2,
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.parsed.y + ' units' } }
+    },
+    scales: {
+      y: { beginAtZero: true, title: { display: true, text: 'Units Permitted' }, grid: { color: '#1e2130' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// 2. Ward Distribution
+new Chart(document.getElementById('chartWards'), {
+  type: 'bar',
+  data: {
+    labels: ['Davenport', 'York South-\nWeston', 'University-\nRosedale', 'Spadina-\nFort York', 'Parkdale-\nHigh Park', 'Beaches-\nEast York', 'Other Wards'],
+    datasets: [{
+      label: 'Units',
+      data: [45, 40, 32, 28, 25, 22, 204],
+      backgroundColor: colors.purple,
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { beginAtZero: true, title: { display: true, text: 'Units' }, grid: { color: '#1e2130' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+// 3. Permit Type
+new Chart(document.getElementById('chartPermitType'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Small Residential (Conversion)', 'New House (Construction)'],
+    datasets: [{
+      data: [158, 64],
+      backgroundColor: [colors.blue, colors.orange],
+      borderWidth: 0,
+      spacing: 4,
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '60%',
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 16 } },
+      tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + ' permits' } }
+    }
+  }
+});
+
+// 4. Permit Status
+new Chart(document.getElementById('chartPermitStatus'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Closed (Complete)', 'Under Inspection', 'Issued (In Progress)'],
+    datasets: [{
+      data: [65, 93, 63],
+      backgroundColor: [colors.green, colors.orange, colors.blue],
+      borderWidth: 0,
+      spacing: 4,
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '60%',
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 16 } },
+      tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + ' permits' } }
+    }
+  }
+});
+
+// 5. Minor Variance
+new Chart(document.getElementById('chartVariance'), {
+  type: 'pie',
+  data: {
+    labels: ['Approved (72%)', 'Refused (10%)', 'Under Review (18%)'],
+    datasets: [{
+      data: [72, 10, 18],
+      backgroundColor: [colors.green, colors.pink, colors.orange],
+      borderWidth: 0,
+      spacing: 4,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 16 } },
+    }
+  }
+});
+
+// 6. Cost Comparison
+new Chart(document.getElementById('chartCost'), {
+  type: 'bar',
+  data: {
+    labels: ['Conversion / Renovation', 'New Construction'],
+    datasets: [{
+      label: 'Avg Cost ($CAD)',
+      data: [216090, 1012782],
+      backgroundColor: [colors.blue, colors.orange],
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toLocaleString() } }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: { display: true, text: 'Average Cost (CAD)' },
+        grid: { color: '#1e2130' },
+        ticks: { callback: v => '$' + (v / 1000) + 'K' }
+      },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// 7. Toronto vs Edmonton
+new Chart(document.getElementById('chartComparison'), {
+  type: 'bar',
+  data: {
+    labels: ['Toronto', 'Edmonton'],
+    datasets: [{
+      label: 'Multiplex Permits (2024)',
+      data: [396, 3500],
+      backgroundColor: [colors.blue, colors.green],
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.parsed.y.toLocaleString() + ' units' } }
+    },
+    scales: {
+      y: { beginAtZero: true, title: { display: true, text: 'Units Permitted' }, grid: { color: '#1e2130' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// 8. Financial Savings
+new Chart(document.getElementById('chartSavings'), {
+  type: 'bar',
+  data: {
+    labels: ['DC Waiver (low est.)', 'DC Waiver (high est.)', 'Parking Min. Removal (low)', 'Parking Min. Removal (high)'],
+    datasets: [{
+      label: 'Savings ($CAD)',
+      data: [200000, 270000, 50000, 100000],
+      backgroundColor: [colors.green, colors.green, colors.purple, colors.purple],
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toLocaleString() } }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: { display: true, text: 'Savings (CAD)' },
+        grid: { color: '#1e2130' },
+        ticks: { callback: v => '$' + (v / 1000) + 'K' }
+      },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// 9. Target vs Reality
+new Chart(document.getElementById('chartTarget'), {
+  type: 'line',
+  data: {
+    labels: ['2023', '2024', '2025', '2026', '2027', '2028', '2029', '2030', '2031'],
+    datasets: [
+      {
+        label: 'Low Target (5,000 by 2031)',
+        data: [0, 625, 1250, 1875, 2500, 3125, 3750, 4375, 5000],
+        borderColor: colors.green,
+        backgroundColor: colors.greenBg,
+        borderDash: [8, 4],
+        tension: 0.3,
+        fill: false,
+        pointRadius: 3,
+      },
+      {
+        label: 'High Target (25,000 by 2031)',
+        data: [0, 3125, 6250, 9375, 12500, 15625, 18750, 21875, 25000],
+        borderColor: colors.purple,
+        backgroundColor: colors.purpleBg,
+        borderDash: [8, 4],
+        tension: 0.3,
+        fill: false,
+        pointRadius: 3,
+      },
+      {
+        label: 'Actual Pace (extrapolated)',
+        data: [200, 596, 1196, 1996, 2896, 3896, 4996, 6196, 7496],
+        borderColor: colors.orange,
+        backgroundColor: colors.orangeBg,
+        tension: 0.3,
+        fill: true,
+        pointRadius: 4,
+        pointBackgroundColor: colors.orange,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 16 } },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString() + ' units' } }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: { display: true, text: 'Cumulative Units' },
+        grid: { color: '#1e2130' },
+        ticks: { callback: v => (v / 1000) + 'K' }
+      },
+      x: { grid: { color: '#1e2130' } }
+    }
+  }
+});
+
+// 10. Rental Market
+new Chart(document.getElementById('chartRental'), {
+  type: 'bar',
+  data: {
+    labels: ['Avg Rent ($/sq ft)', 'Avg Resale ($/sq ft ÷100)', 'Vacancy — City Avg (%)', 'Vacancy — North York (%)'],
+    datasets: [{
+      label: 'Value',
+      data: [2.93, 5.62, 2.2, 1.6],
+      backgroundColor: [colors.blue, colors.orange, colors.pink, colors.pink],
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => {
+            const i = ctx.dataIndex;
+            if (i === 0) return '$' + ctx.parsed.y + '/sq ft (rent)';
+            if (i === 1) return '$' + (ctx.parsed.y * 100).toFixed(2) + '/sq ft (resale)';
+            return ctx.parsed.y + '% vacancy';
+          }
+        }
+      }
+    },
+    scales: {
+      y: { beginAtZero: true, grid: { color: '#1e2130' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// 11. Housing Supply Gap
+new Chart(document.getElementById('chartGap'), {
+  type: 'bar',
+  data: {
+    labels: ['New Renter Households', 'Expected Purpose-Built Rentals', 'Shortfall'],
+    datasets: [{
+      label: 'Units (next decade)',
+      data: [230000, 111000, 119000],
+      backgroundColor: [colors.blue, colors.green, colors.pink],
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.parsed.y.toLocaleString() + ' units' } }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: { display: true, text: 'Households / Units' },
+        grid: { color: '#1e2130' },
+        ticks: { callback: v => (v / 1000) + 'K' }
+      },
+      x: { grid: { display: false } }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
