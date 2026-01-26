@@ -66,67 +66,6 @@ body::after {
   z-index: 9999;
 }
 
-/* ===== TOP TICKER ===== */
-.ticker-bar {
-  background: var(--bg2);
-  border-bottom: 1px solid var(--border);
-  height: 36px;
-  overflow: hidden;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-}
-.ticker-label {
-  background: var(--red);
-  color: #fff;
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  font-weight: 700;
-  padding: 4px 12px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  white-space: nowrap;
-  flex-shrink: 0;
-  z-index: 2;
-}
-.ticker-track {
-  flex: 1;
-  overflow: hidden;
-  position: relative;
-  height: 100%;
-  display: flex;
-  align-items: center;
-}
-.ticker-content {
-  display: flex;
-  white-space: nowrap;
-  animation: tickerScroll 90s linear infinite;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  color: var(--muted);
-  gap: 0;
-}
-.ticker-content span {
-  padding: 0 24px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-.ticker-content .t-green { color: var(--green); }
-.ticker-content .t-red { color: var(--red); }
-.ticker-content .t-amber { color: var(--amber); }
-.ticker-content .t-blue { color: var(--blue); }
-.ticker-sep {
-  color: var(--border);
-  font-size: 0.5rem;
-}
-@keyframes tickerScroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
 /* ===== HEADER ===== */
 .header {
   border-bottom: 1px solid var(--border);
@@ -490,7 +429,7 @@ body::after {
   background: rgba(51,136,255,0.12);
 }
 
-/* ===== RIGHT SIDEBAR — LIVE FEED ===== */
+/* ===== RIGHT SIDEBAR — X FEED ===== */
 .sidebar {
   border-left: 1px solid var(--border);
   background: var(--bg2);
@@ -518,10 +457,10 @@ body::after {
   gap: 8px;
 }
 .sidebar-title .live-dot { width: 6px; height: 6px; }
-.feed-count {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  color: var(--muted);
+.sidebar-title .x-logo {
+  width: 14px; height: 14px;
+  fill: var(--text-bright);
+  flex-shrink: 0;
 }
 .feed-scroll {
   flex: 1;
@@ -531,77 +470,12 @@ body::after {
 .feed-scroll::-webkit-scrollbar { width: 4px; }
 .feed-scroll::-webkit-scrollbar-track { background: transparent; }
 .feed-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-.feed-item {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  transition: background 0.2s;
-  cursor: default;
-  animation: feedIn 0.4s ease-out;
+.x-embed-wrap {
+  height: 100%;
+  min-height: 500px;
 }
-.feed-item:hover { background: var(--card-hover); }
-.feed-item.new-item {
-  animation: feedFlash 1.5s ease-out;
-}
-@keyframes feedIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes feedFlash {
-  0% { background: rgba(0,255,136,0.1); }
-  100% { background: transparent; }
-}
-.feed-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 4px;
-}
-.feed-source {
-  font-family: var(--mono);
-  font-size: 0.55rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 2px 6px;
-  border-radius: 2px;
-}
-.feed-source.src-permit {
-  color: var(--green);
-  background: var(--green-bg);
-}
-.feed-source.src-policy {
-  color: var(--blue);
-  background: var(--blue-bg);
-}
-.feed-source.src-market {
-  color: var(--amber);
-  background: var(--amber-bg);
-}
-.feed-source.src-alert {
-  color: var(--red);
-  background: var(--red-bg);
-}
-.feed-source.src-data {
-  color: var(--cyan);
-  background: var(--cyan-bg);
-}
-.feed-source.src-community {
-  color: var(--purple);
-  background: rgba(170,85,255,0.06);
-}
-.feed-time {
-  font-family: var(--mono);
-  font-size: 0.55rem;
-  color: var(--muted);
-}
-.feed-text {
-  font-size: 0.75rem;
-  color: var(--text);
-  line-height: 1.4;
-}
-.feed-text strong {
-  color: var(--text-bright);
+.x-embed-wrap .twitter-timeline {
+  color-scheme: dark;
 }
 
 /* ===== WARD MAP (CSS grid) ===== */
@@ -713,16 +587,6 @@ body::after {
 
 <!-- FLASH OVERLAY (fires on new data) -->
 <div class="flash-overlay" id="flashOverlay"></div>
-
-<!-- TOP TICKER -->
-<div class="ticker-bar">
-  <div class="ticker-label">MPLX FEED</div>
-  <div class="ticker-track">
-    <div class="ticker-content" id="tickerContent">
-      <!-- Populated by JS -->
-    </div>
-  </div>
-</div>
 
 <!-- HEADER -->
 <div class="header">
@@ -962,14 +826,27 @@ body::after {
 
   </div>
 
-  <!-- RIGHT SIDEBAR — LIVE INTEL FEED -->
+  <!-- RIGHT SIDEBAR — LIVE X (TWITTER) FEED -->
   <div class="sidebar">
     <div class="sidebar-header">
-      <div class="sidebar-title"><div class="live-dot"></div> INTEL FEED</div>
-      <div class="feed-count" id="feedCount">0 items</div>
+      <div class="sidebar-title">
+        <div class="live-dot"></div>
+        <svg class="x-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+        LIVE FEED
+      </div>
     </div>
-    <div class="feed-scroll" id="feedScroll">
-      <!-- Populated by JS -->
+    <div class="feed-scroll">
+      <div class="x-embed-wrap">
+        <a class="twitter-timeline"
+           href="https://twitter.com/search?q=toronto%20multiplex%20-filter%3Areplies"
+           data-theme="dark"
+           data-chrome="noheader nofooter noborders transparent"
+           data-tweet-limit="20"
+           data-dnt="true"
+           data-aria-polite="assertive">
+          Loading tweets...
+        </a>
+      </div>
     </div>
   </div>
 
@@ -1039,118 +916,15 @@ function animateCounters() {
 animateCounters();
 
 // ============================================================
-//  TICKER
+//  X (TWITTER) WIDGET — loads embedded timeline
 // ============================================================
-const tickerItems = [
-  ['PERMITS +51% YoY', 't-green'],
-  ['750 APPLICATIONS FILED SINCE MAY 2023', 't-blue'],
-  ['SIXPLEXES NOW LEGAL IN 9 WARDS', 't-amber'],
-  ['AVG CONVERSION COST: $216K', 't-green'],
-  ['DAVENPORT LEADS WITH 45 PERMITS', 't-blue'],
-  ['DC WAIVER SAVES $200K–$270K PER PROJECT', 't-green'],
-  ['EDMONTON: 3,500 PERMITS vs TORONTO: 396', 't-red'],
-  ['VACANCY RATE: 2.2% CITY AVG', 't-amber'],
-  ['CAP RATES: 6–8% FOR MULTIPLEX', 't-green'],
-  ['GTA RENTAL SHORTFALL: 119,000 UNITS', 't-red'],
-  ['MINOR VARIANCE APPROVAL: 72%', 't-blue'],
-  ['FAST-TRACK PERMITS: 10–21 DAYS', 't-green'],
-  ['FSI LIMITS REMOVED (ONT REG 462/24)', 't-amber'],
-  ['70% OF RESIDENTIAL LAND NOW MULTIPLEX-ELIGIBLE', 't-blue'],
-];
-function buildTicker() {
-  const el = document.getElementById('tickerContent');
-  let html = '';
-  // Double for seamless loop
-  for (let r = 0; r < 2; r++) {
-    tickerItems.forEach((t, i) => {
-      html += `<span class="${t[1]}">${t[0]}</span>`;
-      if (i < tickerItems.length - 1) html += '<span class="ticker-sep">///</span>';
-    });
-    html += '<span class="ticker-sep">///</span>';
-  }
-  el.innerHTML = html;
-}
-buildTicker();
-
-// ============================================================
-//  INTEL FEED
-// ============================================================
-const feedData = [
-  { src: 'permit', cls: 'src-permit', text: '<strong>Ward 9 — Davenport:</strong> New fourplex permit issued at 312 Ossington Ave. Conversion from single-detached. Estimated cost $198,000.' },
-  { src: 'policy', cls: 'src-policy', text: '<strong>City Council:</strong> By-law 654-2025 adopted — fiveplexes and sixplexes now permitted in Toronto & East York District + Ward 23.' },
-  { src: 'market', cls: 'src-market', text: '<strong>Market Signal:</strong> Avg multiplex cap rate holding steady at 7.2%. Vacancy in North York drops to 1.6%, lowest since Q2 2022.' },
-  { src: 'data', cls: 'src-data', text: '<strong>Data Update:</strong> Monthly permit count for Dec 2025 — 58 units issued. Running 12-month total: 614 units (+52% YoY).' },
-  { src: 'alert', cls: 'src-alert', text: '<strong>Supply Alert:</strong> GTA rental shortfall widens — 119,000 unit gap projected over next decade. Multiplex pace insufficient to close gap.' },
-  { src: 'permit', cls: 'src-permit', text: '<strong>Ward 10 — Spadina-Fort York:</strong> Sixplex building permit application received. 6 units, 12 bedrooms. Fast-track review initiated.' },
-  { src: 'community', cls: 'src-community', text: '<strong>Community:</strong> Residents\' association in Ward 14 raises concerns about parking. City notes parking minimums removed under EHON.' },
-  { src: 'policy', cls: 'src-policy', text: '<strong>Ontario Reg 462/24:</strong> FSI limits formally removed for lots with secondary suites. Lot coverage now 45–60%.' },
-  { src: 'market', cls: 'src-market', text: '<strong>Economics:</strong> Avg conversion cost down 12% from 2023 peak — now $216K. New construction holds at $1.01M. DC waiver saves $200–270K.' },
-  { src: 'data', cls: 'src-data', text: '<strong>Benchmark:</strong> Edmonton issued 3,500 multiplex permits in 2024 — nearly 10x Toronto\'s 396. Policy gap under review.' },
-  { src: 'permit', cls: 'src-permit', text: '<strong>Ward 11 — University-Rosedale:</strong> Triplex conversion approved. Minor variance granted for 18.5m building depth (vs 17m standard).' },
-  { src: 'alert', cls: 'src-alert', text: '<strong>Pipeline:</strong> 93 permits under active inspection. 65 closed (complete). 63 issued and in progress.' },
-  { src: 'policy', cls: 'src-policy', text: '<strong>EHON Update:</strong> City Planning directed to report on multiplex implementation by Q1 2026 or upon 200th permit, whichever first.' },
-  { src: 'market', cls: 'src-market', text: '<strong>Rental Market:</strong> Avg multiplex rent at $2.93/sq ft. Resale value averaging $562/sq ft. ROI projected 120–160% over 5 years.' },
-  { src: 'data', cls: 'src-data', text: '<strong>Variance Data:</strong> 72% of minor variance applications approved. 10% refused. 18% still under review. Approval rate stable since 2023.' },
-  { src: 'permit', cls: 'src-permit', text: '<strong>Ward 4 — Parkdale-High Park:</strong> Two new fourplex permits issued this week. Both conversions from semi-detached homes.' },
-  { src: 'community', cls: 'src-community', text: '<strong>U of T School of Cities:</strong> New "Gentle Density" tracker updated — maps all multiplex permits in real-time with open data.' },
-  { src: 'policy', cls: 'src-policy', text: '<strong>Bill 185:</strong> Fast-track provisions cut complex permit reviews by 30%. Standard permits now approved in 10–21 days.' },
-  { src: 'alert', cls: 'src-alert', text: '<strong>Target Tracker:</strong> At current pace, Toronto will reach ~7,500 multiplex units by 2031 — above low target (5K) but well below high target (25K).' },
-  { src: 'market', cls: 'src-market', text: '<strong>Investment Signal:</strong> Multiplex development charges fully eliminated for ≤6 units. Estimated savings: $200K–$270K per project.' },
-];
-
-let feedIndex = 0;
-const feedEl = document.getElementById('feedScroll');
-const feedCountEl = document.getElementById('feedCount');
-
-function getTimeAgo(mins) {
-  if (mins < 1) return 'just now';
-  if (mins < 60) return mins + 'm ago';
-  if (mins < 1440) return Math.floor(mins / 60) + 'h ago';
-  return Math.floor(mins / 1440) + 'd ago';
-}
-
-function addFeedItem(item, isNew) {
-  const div = document.createElement('div');
-  div.className = 'feed-item' + (isNew ? ' new-item' : '');
-  const minsAgo = isNew ? 0 : Math.floor(Math.random() * 720) + (feedData.length - feedIndex) * 30;
-  div.innerHTML = `
-    <div class="feed-meta">
-      <span class="feed-source ${item.cls}">${item.src.toUpperCase()}</span>
-      <span class="feed-time">${getTimeAgo(isNew ? 0 : minsAgo)}</span>
-    </div>
-    <div class="feed-text">${item.text}</div>
-  `;
-  if (isNew) {
-    feedEl.prepend(div);
-  } else {
-    feedEl.appendChild(div);
-  }
-  feedCountEl.textContent = feedEl.children.length + ' items';
-}
-
-// Initial load — show first 8 items
-for (let i = 0; i < 8; i++) {
-  addFeedItem(feedData[i], false);
-  feedIndex++;
-}
-
-// Add new items every 15–30 seconds
-function scheduleNextFeed() {
-  const delay = 15000 + Math.random() * 15000;
-  setTimeout(() => {
-    const item = feedData[feedIndex % feedData.length];
-    addFeedItem(item, true);
-    feedIndex++;
-    // Flash
-    const flash = document.getElementById('flashOverlay');
-    flash.classList.add('active');
-    setTimeout(() => flash.classList.remove('active'), 600);
-    // Update last update time
-    document.getElementById('lastUpdate').textContent = 'Last update: ' + new Date().toLocaleTimeString('en-US', { hour12: false, timeZone: 'America/Toronto' });
-    scheduleNextFeed();
-  }, delay);
-}
-scheduleNextFeed();
+(function() {
+  const s = document.createElement('script');
+  s.src = 'https://platform.twitter.com/widgets.js';
+  s.async = true;
+  s.charset = 'utf-8';
+  document.head.appendChild(s);
+})();
 
 // ============================================================
 //  WARD HEATMAP
