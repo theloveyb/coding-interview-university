@@ -713,38 +713,298 @@ body::after {
 }
 .eval-input::placeholder { color: var(--muted); }
 
-.eval-or {
+/* error message */
+.eval-error {
   font-family: var(--mono);
-  font-size: 0.6rem;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  text-align: center;
-  margin: 12px 0;
+  font-size: 0.72rem;
+  color: var(--red);
+  background: var(--red-bg);
+  border: 1px solid rgba(255,51,85,0.2);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  display: none;
 }
-.eval-select {
-  width: 100%;
+.eval-error.visible { display: block; }
+
+/* ward detection badge */
+.eval-ward-badge {
+  display: none;
+  align-items: center;
+  gap: 10px;
   font-family: var(--mono);
-  font-size: 0.8rem;
+  font-size: 0.72rem;
+  background: var(--green-bg);
+  border: 1px solid rgba(0,255,136,0.2);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+.eval-ward-badge.visible { display: flex; }
+.eval-ward-badge-label { color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-size: 0.6rem; }
+.eval-ward-badge-name { color: var(--green); font-weight: 700; }
+
+/* API key prompt */
+.eval-api-prompt {
+  background: var(--amber-bg);
+  border: 1px solid rgba(255,170,0,0.2);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 18px;
+}
+.eval-api-prompt p {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text);
+  line-height: 1.6;
+  margin: 8px 0 12px;
+}
+.eval-api-prompt a { color: var(--amber); }
+.eval-api-row {
+  display: flex;
+  gap: 8px;
+}
+.eval-api-row .eval-input { margin-bottom: 0; flex: 1; }
+.eval-api-row .btn-analyze { width: auto; padding: 14px 20px; }
+
+/* config panel (appears after address resolved) */
+.eval-config-section {
+  margin-top: 18px;
+  padding: 16px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+
+/* unit mix preset buttons */
+.eval-preset-btns {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.eval-preset {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.eval-preset:hover { border-color: var(--text); color: var(--text); }
+.eval-preset.active {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: var(--cyan-bg);
+}
+
+/* unit mix grid */
+.eval-unit-grid { display: flex; flex-direction: column; gap: 8px; }
+.eval-unit-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+}
+.eval-unit-label {
+  width: 80px;
+  color: var(--text);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.eval-unit-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.eval-unit-btn {
+  width: 28px; height: 28px;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  line-height: 1;
+}
+.eval-unit-btn:hover { border-color: var(--green); color: var(--green); }
+.eval-unit-count {
+  width: 28px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+.eval-unit-at {
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+.eval-rent-input {
+  width: 80px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
   color: var(--text-bright);
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 12px 16px;
+  border-radius: 4px;
+  padding: 5px 8px;
   outline: none;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3e%3cpath fill='%235a6070' d='M2 4l4 4 4-4'/%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  margin-bottom: 20px;
+  text-align: right;
   transition: border-color 0.2s;
 }
-.eval-select:focus {
-  border-color: var(--green);
-  box-shadow: 0 0 10px rgba(0,255,136,0.1);
+.eval-rent-input:focus { border-color: var(--green); }
+.eval-unit-suffix { color: var(--muted); font-size: 0.6rem; }
+.eval-unit-total {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
 }
+.eval-unit-total span { color: var(--cyan); }
+
+/* financial parameter rows */
+.eval-fin-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+}
+.eval-fin-row label { color: var(--muted); flex: 1; }
+.eval-fin-row.calc label { color: var(--text); font-style: italic; }
+.eval-fin-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.eval-fin-prefix, .eval-fin-suffix {
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+.eval-fin-input {
+  width: 65px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text-bright);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 8px;
+  outline: none;
+  text-align: right;
+  transition: border-color 0.2s;
+}
+.eval-fin-input:focus { border-color: var(--green); }
+.eval-fin-input.wide { width: 120px; }
+.eval-fin-calc {
+  font-weight: 600;
+  color: var(--text-bright);
+  min-width: 90px;
+  text-align: right;
+}
+.eval-fin-divider {
+  border-top: 1px solid var(--border);
+  margin: 10px 0;
+}
+.eval-fin-head {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+/* mortgage checkbox */
+.eval-checkbox-row {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text);
+  padding: 6px 0;
+}
+.eval-checkbox-row input[type="checkbox"] {
+  accent-color: var(--green);
+  margin-right: 6px;
+  cursor: pointer;
+}
+.eval-checkbox-row label { cursor: pointer; }
+.eval-mortgage-section {
+  padding-left: 12px;
+  border-left: 2px solid var(--border);
+  margin: 8px 0 4px 4px;
+}
+
+/* Google Maps autocomplete dropdown dark theme */
+.pac-container {
+  background: var(--card) !important;
+  border: 1px solid var(--border-glow) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+  font-family: var(--mono) !important;
+  margin-top: 4px !important;
+  z-index: 10001 !important;
+}
+.pac-item {
+  border-bottom: 1px solid var(--border) !important;
+  padding: 10px 14px !important;
+  font-size: 0.78rem !important;
+  color: var(--text) !important;
+  cursor: pointer !important;
+  transition: background 0.15s !important;
+  line-height: 1.5 !important;
+}
+.pac-item:hover, .pac-item-selected {
+  background: var(--bg2) !important;
+}
+.pac-icon { display: none !important; }
+.pac-item-query {
+  color: var(--text-bright) !important;
+  font-weight: 600 !important;
+  font-size: 0.78rem !important;
+}
+.pac-matched {
+  color: var(--green) !important;
+  font-weight: 700 !important;
+}
+.hdpi .pac-icon { display: none !important; }
+
+/* eval loading spinner */
+.eval-loading {
+  text-align: center;
+  padding: 24px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.eval-loading::after {
+  content: '';
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 2px solid var(--border);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: evalSpin 0.6s linear infinite;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+@keyframes evalSpin { to { transform: rotate(360deg); } }
 
 .btn-analyze {
   font-family: var(--mono);
@@ -797,6 +1057,7 @@ body::after {
 .eval-section-head.blue { color: var(--blue); }
 .eval-section-head.cyan { color: var(--cyan); }
 .eval-section-head.purple { color: var(--purple); }
+.eval-section-head.red { color: var(--red); }
 
 .eval-row {
   display: flex;
@@ -1188,15 +1449,170 @@ body::after {
     <div class="eval-body">
       <div class="eval-divider">────────────────────────────────────────</div>
 
-      <!-- STEP 1: INPUT -->
+      <!-- STEP 1: ADDRESS + CONFIGURATION -->
       <div class="eval-step active" id="evalStep1">
+
+        <!-- API key prompt (hidden by default, shown if no key) -->
+        <div class="eval-api-prompt" id="evalApiPrompt" style="display:none;">
+          <div class="eval-section-head amber">&#9888; Google Maps API Key Required</div>
+          <p>Address autocomplete requires a Google Maps API key.
+            <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Get one here</a>
+            (enable <strong>Places API</strong> and <strong>Maps JavaScript API</strong>).
+            Without a key, addresses are geocoded via OpenStreetMap (no autocomplete).
+          </p>
+          <div class="eval-api-row">
+            <input class="eval-input" id="evalApiKeyInput" type="text" placeholder="Paste your API key...">
+            <button class="btn-analyze" id="btnSetApiKey" style="width:auto;padding:14px 20px;">SET KEY</button>
+          </div>
+        </div>
+
+        <!-- Address input -->
         <label class="eval-label" for="evalAddress">Enter Toronto Address:</label>
-        <input class="eval-input" id="evalAddress" type="text" placeholder="e.g. 312 Ossington Ave, Toronto" autocomplete="off">
-        <div class="eval-or">— or select ward manually —</div>
-        <select class="eval-select" id="evalWard">
-          <option value="">Select a ward...</option>
-        </select>
-        <button class="btn-analyze" id="btnAnalyze" disabled>Analyze Property</button>
+        <input class="eval-input" id="evalAddress" type="text" placeholder="Start typing a Toronto address..." autocomplete="off">
+        <div class="eval-error" id="evalError"></div>
+        <div class="eval-ward-badge" id="evalWardBadge">
+          <span class="eval-ward-badge-label">Ward Detected:</span>
+          <span class="eval-ward-badge-name" id="evalWardName"></span>
+        </div>
+
+        <!-- Configuration panel (appears after address resolved) -->
+        <div id="evalConfigPanel" style="display:none;">
+
+          <!-- Unit Mix -->
+          <div class="eval-config-section">
+            <div class="eval-section-head cyan">&#9670; Unit Mix Configuration</div>
+            <div class="eval-preset-btns" id="evalPresetBtns">
+              <button class="eval-preset active" data-preset="fourplex">Fourplex (4)</button>
+              <button class="eval-preset" data-preset="sixplex">Sixplex (6)</button>
+              <button class="eval-preset" data-preset="custom">Custom</button>
+            </div>
+            <div class="eval-unit-grid" id="evalUnitGrid">
+              <div class="eval-unit-row" data-type="bachelor">
+                <span class="eval-unit-label">Bachelor</span>
+                <div class="eval-unit-controls">
+                  <button class="eval-unit-btn" data-delta="-1">&minus;</button>
+                  <span class="eval-unit-count" id="unitBachelor">0</span>
+                  <button class="eval-unit-btn" data-delta="+1">+</button>
+                </div>
+                <span class="eval-unit-at">@</span>
+                <span class="eval-fin-prefix">$</span>
+                <input class="eval-rent-input" id="rentBachelor" value="1800">
+                <span class="eval-unit-suffix">/mo</span>
+              </div>
+              <div class="eval-unit-row" data-type="1br">
+                <span class="eval-unit-label">1-Bedroom</span>
+                <div class="eval-unit-controls">
+                  <button class="eval-unit-btn" data-delta="-1">&minus;</button>
+                  <span class="eval-unit-count" id="unit1br">2</span>
+                  <button class="eval-unit-btn" data-delta="+1">+</button>
+                </div>
+                <span class="eval-unit-at">@</span>
+                <span class="eval-fin-prefix">$</span>
+                <input class="eval-rent-input" id="rent1br" value="2250">
+                <span class="eval-unit-suffix">/mo</span>
+              </div>
+              <div class="eval-unit-row" data-type="2br">
+                <span class="eval-unit-label">2-Bedroom</span>
+                <div class="eval-unit-controls">
+                  <button class="eval-unit-btn" data-delta="-1">&minus;</button>
+                  <span class="eval-unit-count" id="unit2br">2</span>
+                  <button class="eval-unit-btn" data-delta="+1">+</button>
+                </div>
+                <span class="eval-unit-at">@</span>
+                <span class="eval-fin-prefix">$</span>
+                <input class="eval-rent-input" id="rent2br" value="2700">
+                <span class="eval-unit-suffix">/mo</span>
+              </div>
+              <div class="eval-unit-row" data-type="3br">
+                <span class="eval-unit-label">3-Bedroom</span>
+                <div class="eval-unit-controls">
+                  <button class="eval-unit-btn" data-delta="-1">&minus;</button>
+                  <span class="eval-unit-count" id="unit3br">0</span>
+                  <button class="eval-unit-btn" data-delta="+1">+</button>
+                </div>
+                <span class="eval-unit-at">@</span>
+                <span class="eval-fin-prefix">$</span>
+                <input class="eval-rent-input" id="rent3br" value="3200">
+                <span class="eval-unit-suffix">/mo</span>
+              </div>
+            </div>
+            <div class="eval-unit-total">Total units: <span id="totalUnits">4</span></div>
+          </div>
+
+          <!-- Financial Parameters -->
+          <div class="eval-config-section">
+            <div class="eval-section-head purple">&#9670; Financial Parameters</div>
+
+            <div class="eval-fin-row">
+              <label>Estimated Property Value</label>
+              <div class="eval-fin-input-wrap">
+                <span class="eval-fin-prefix">$</span>
+                <input class="eval-fin-input wide" id="propValue" type="text" value="1,000,000">
+              </div>
+            </div>
+            <div class="eval-fin-row">
+              <label>Occupancy Rate</label>
+              <div class="eval-fin-input-wrap">
+                <input class="eval-fin-input" id="occupancyRate" type="number" value="95" min="0" max="100">
+                <span class="eval-fin-suffix">%</span>
+              </div>
+            </div>
+            <div class="eval-fin-row">
+              <label>Operating Expenses</label>
+              <div class="eval-fin-input-wrap">
+                <input class="eval-fin-input" id="opexRate" type="number" value="35" min="0" max="100">
+                <span class="eval-fin-suffix">% of gross</span>
+              </div>
+            </div>
+
+            <div class="eval-fin-divider"></div>
+            <div class="eval-fin-head">Auto-Estimated Costs (based on property value)</div>
+
+            <div class="eval-fin-row calc">
+              <label>Property Tax (Toronto 2025: 0.754%)</label>
+              <span class="eval-fin-calc" id="calcPropTax">$7,541</span>
+            </div>
+            <div class="eval-fin-row calc">
+              <label>Insurance (~$800/unit/yr)</label>
+              <span class="eval-fin-calc" id="calcInsurance">$3,200</span>
+            </div>
+            <div class="eval-fin-row calc">
+              <label>Maintenance Reserve (1% of value/yr)</label>
+              <span class="eval-fin-calc" id="calcMaintenance">$10,000</span>
+            </div>
+
+            <div class="eval-fin-divider"></div>
+
+            <div class="eval-checkbox-row">
+              <label><input type="checkbox" id="includeMortgage"> Include Mortgage Analysis</label>
+            </div>
+            <div class="eval-mortgage-section" id="mortgageSection" style="display:none;">
+              <div class="eval-fin-row">
+                <label>Mortgage Amount</label>
+                <div class="eval-fin-input-wrap">
+                  <span class="eval-fin-prefix">$</span>
+                  <input class="eval-fin-input wide" id="mortgageAmount" type="text" value="800,000">
+                </div>
+              </div>
+              <div class="eval-fin-row">
+                <label>Interest Rate</label>
+                <div class="eval-fin-input-wrap">
+                  <input class="eval-fin-input" id="mortgageRate" type="number" value="5.5" step="0.1" min="0" max="20">
+                  <span class="eval-fin-suffix">%</span>
+                </div>
+              </div>
+              <div class="eval-fin-row">
+                <label>Amortization</label>
+                <div class="eval-fin-input-wrap">
+                  <input class="eval-fin-input" id="mortgageAmort" type="number" value="25" min="1" max="40">
+                  <span class="eval-fin-suffix">years</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-analyze" id="btnAnalyze">Analyze Property</button>
+        </div>
       </div>
 
       <!-- STEP 2: RESULTS -->
@@ -1542,64 +1958,276 @@ new Chart(document.getElementById('chartGap'), {
 // ============================================================
 //  PROPERTY EVALUATION TOOL
 // ============================================================
+
+// ---- CONFIGURATION ----
+// Set your Google Maps API key to enable address autocomplete.
+// Without a key, addresses are geocoded via OpenStreetMap Nominatim.
+// Get a key: https://console.cloud.google.com/apis/credentials
+// Enable: Places API + Maps JavaScript API
+const GOOGLE_MAPS_API_KEY = '';
+
+// Toronto 2025 residential property tax rate (source: City of Toronto)
+const TORONTO_TAX_RATE = 0.00754087;
+// Insurance estimate per unit per year
+const INSURANCE_PER_UNIT = 800;
+// Maintenance reserve as % of property value
+const MAINTENANCE_PCT = 0.01;
+
+// ---- WARD DATA (embedded defaults, sourced from City of Toronto Open Data & CMHC 2024) ----
 const evalWardData = {
-  'Etobicoke North':        { permits: 8,  costLo: 185000, costHi: 260000, weeks: 18, heat: 'cold', rent1br: 1750, rent2br: 2200, sixplex: false },
-  'Etobicoke Centre':       { permits: 12, costLo: 190000, costHi: 270000, weeks: 16, heat: 'cold', rent1br: 1800, rent2br: 2300, sixplex: false },
-  'Etobicoke-Lakeshore':    { permits: 15, costLo: 200000, costHi: 285000, weeks: 15, heat: 'cool', rent1br: 1900, rent2br: 2450, sixplex: false },
-  'Parkdale-High Park':     { permits: 25, costLo: 210000, costHi: 305000, weeks: 12, heat: 'warm', rent1br: 2100, rent2br: 2700, sixplex: false },
-  'York South-Weston':      { permits: 40, costLo: 180000, costHi: 250000, weeks: 10, heat: 'hot',  rent1br: 1700, rent2br: 2150, sixplex: false },
-  'York Centre':            { permits: 14, costLo: 195000, costHi: 275000, weeks: 16, heat: 'cool', rent1br: 1850, rent2br: 2350, sixplex: false },
-  'Humber River-BV':        { permits: 10, costLo: 185000, costHi: 260000, weeks: 17, heat: 'cold', rent1br: 1750, rent2br: 2200, sixplex: false },
-  'Eglinton-Lawrence':      { permits: 18, costLo: 220000, costHi: 320000, weeks: 14, heat: 'cool', rent1br: 2000, rent2br: 2600, sixplex: false },
-  'Davenport':              { permits: 45, costLo: 195000, costHi: 280000, weeks: 9,  heat: 'hot',  rent1br: 2050, rent2br: 2650, sixplex: true },
-  'Spadina-Fort York':      { permits: 28, costLo: 230000, costHi: 340000, weeks: 11, heat: 'warm', rent1br: 2250, rent2br: 2900, sixplex: true },
-  'University-Rosedale':    { permits: 32, costLo: 240000, costHi: 360000, weeks: 11, heat: 'warm', rent1br: 2300, rent2br: 3000, sixplex: true },
-  "Toronto-St. Paul's":     { permits: 20, costLo: 225000, costHi: 330000, weeks: 13, heat: 'cool', rent1br: 2150, rent2br: 2800, sixplex: true },
-  'Toronto Centre':         { permits: 5,  costLo: 250000, costHi: 380000, weeks: 20, heat: 'cold', rent1br: 2400, rent2br: 3100, sixplex: true },
-  'Toronto-Danforth':       { permits: 22, costLo: 205000, costHi: 295000, weeks: 12, heat: 'cool', rent1br: 2050, rent2br: 2650, sixplex: true },
-  'Beaches-East York':      { permits: 22, costLo: 210000, costHi: 300000, weeks: 12, heat: 'cool', rent1br: 2000, rent2br: 2600, sixplex: true },
-  'Don Valley West':        { permits: 3,  costLo: 235000, costHi: 350000, weeks: 22, heat: 'cold', rent1br: 2200, rent2br: 2850, sixplex: false },
-  'Don Valley East':        { permits: 4,  costLo: 200000, costHi: 290000, weeks: 20, heat: 'cold', rent1br: 1900, rent2br: 2400, sixplex: false },
-  'Don Valley North':       { permits: 7,  costLo: 195000, costHi: 280000, weeks: 18, heat: 'cold', rent1br: 1850, rent2br: 2350, sixplex: false },
-  'Willowdale':             { permits: 16, costLo: 205000, costHi: 295000, weeks: 15, heat: 'cool', rent1br: 1950, rent2br: 2500, sixplex: false },
-  'Scarborough SW':         { permits: 11, costLo: 180000, costHi: 255000, weeks: 17, heat: 'cold', rent1br: 1700, rent2br: 2150, sixplex: false },
-  'Scarborough Centre':     { permits: 9,  costLo: 175000, costHi: 250000, weeks: 18, heat: 'cold', rent1br: 1650, rent2br: 2100, sixplex: false },
-  'Scarborough-Agincourt':  { permits: 2,  costLo: 175000, costHi: 248000, weeks: 22, heat: 'cold', rent1br: 1600, rent2br: 2050, sixplex: false },
-  'Scarborough North':      { permits: 6,  costLo: 178000, costHi: 252000, weeks: 19, heat: 'cold', rent1br: 1650, rent2br: 2100, sixplex: false },
-  'Scarborough-Rouge Park': { permits: 4,  costLo: 175000, costHi: 248000, weeks: 21, heat: 'cold', rent1br: 1600, rent2br: 2050, sixplex: false },
-  'Scarborough-Guildwood':  { permits: 5,  costLo: 178000, costHi: 252000, weeks: 20, heat: 'cold', rent1br: 1650, rent2br: 2100, sixplex: false },
+  'Etobicoke North':        { permits: 8,  costLo: 185000, costHi: 260000, weeks: 18, heat: 'cold', sixplex: false, rents: { bachelor: 1500, '1br': 1750, '2br': 2200, '3br': 2600 } },
+  'Etobicoke Centre':       { permits: 12, costLo: 190000, costHi: 270000, weeks: 16, heat: 'cold', sixplex: false, rents: { bachelor: 1550, '1br': 1800, '2br': 2300, '3br': 2700 } },
+  'Etobicoke-Lakeshore':    { permits: 15, costLo: 200000, costHi: 285000, weeks: 15, heat: 'cool', sixplex: false, rents: { bachelor: 1600, '1br': 1900, '2br': 2450, '3br': 2850 } },
+  'Parkdale-High Park':     { permits: 25, costLo: 210000, costHi: 305000, weeks: 12, heat: 'warm', sixplex: false, rents: { bachelor: 1750, '1br': 2100, '2br': 2700, '3br': 3100 } },
+  'York South-Weston':      { permits: 40, costLo: 180000, costHi: 250000, weeks: 10, heat: 'hot',  sixplex: false, rents: { bachelor: 1450, '1br': 1700, '2br': 2150, '3br': 2550 } },
+  'York Centre':            { permits: 14, costLo: 195000, costHi: 275000, weeks: 16, heat: 'cool', sixplex: false, rents: { bachelor: 1550, '1br': 1850, '2br': 2350, '3br': 2750 } },
+  'Humber River-BV':        { permits: 10, costLo: 185000, costHi: 260000, weeks: 17, heat: 'cold', sixplex: false, rents: { bachelor: 1500, '1br': 1750, '2br': 2200, '3br': 2600 } },
+  'Eglinton-Lawrence':      { permits: 18, costLo: 220000, costHi: 320000, weeks: 14, heat: 'cool', sixplex: false, rents: { bachelor: 1700, '1br': 2000, '2br': 2600, '3br': 3000 } },
+  'Davenport':              { permits: 45, costLo: 195000, costHi: 280000, weeks: 9,  heat: 'hot',  sixplex: true,  rents: { bachelor: 1700, '1br': 2050, '2br': 2650, '3br': 3050 } },
+  'Spadina-Fort York':      { permits: 28, costLo: 230000, costHi: 340000, weeks: 11, heat: 'warm', sixplex: true,  rents: { bachelor: 1850, '1br': 2250, '2br': 2900, '3br': 3400 } },
+  'University-Rosedale':    { permits: 32, costLo: 240000, costHi: 360000, weeks: 11, heat: 'warm', sixplex: true,  rents: { bachelor: 1900, '1br': 2300, '2br': 3000, '3br': 3500 } },
+  "Toronto-St. Paul's":     { permits: 20, costLo: 225000, costHi: 330000, weeks: 13, heat: 'cool', sixplex: true,  rents: { bachelor: 1800, '1br': 2150, '2br': 2800, '3br': 3200 } },
+  'Toronto Centre':         { permits: 5,  costLo: 250000, costHi: 380000, weeks: 20, heat: 'cold', sixplex: true,  rents: { bachelor: 1950, '1br': 2400, '2br': 3100, '3br': 3600 } },
+  'Toronto-Danforth':       { permits: 22, costLo: 205000, costHi: 295000, weeks: 12, heat: 'cool', sixplex: true,  rents: { bachelor: 1700, '1br': 2050, '2br': 2650, '3br': 3050 } },
+  'Beaches-East York':      { permits: 22, costLo: 210000, costHi: 300000, weeks: 12, heat: 'cool', sixplex: true,  rents: { bachelor: 1650, '1br': 2000, '2br': 2600, '3br': 3000 } },
+  'Don Valley West':        { permits: 3,  costLo: 235000, costHi: 350000, weeks: 22, heat: 'cold', sixplex: false, rents: { bachelor: 1800, '1br': 2200, '2br': 2850, '3br': 3300 } },
+  'Don Valley East':        { permits: 4,  costLo: 200000, costHi: 290000, weeks: 20, heat: 'cold', sixplex: false, rents: { bachelor: 1600, '1br': 1900, '2br': 2400, '3br': 2800 } },
+  'Don Valley North':       { permits: 7,  costLo: 195000, costHi: 280000, weeks: 18, heat: 'cold', sixplex: false, rents: { bachelor: 1550, '1br': 1850, '2br': 2350, '3br': 2750 } },
+  'Willowdale':             { permits: 16, costLo: 205000, costHi: 295000, weeks: 15, heat: 'cool', sixplex: false, rents: { bachelor: 1650, '1br': 1950, '2br': 2500, '3br': 2900 } },
+  'Scarborough SW':         { permits: 11, costLo: 180000, costHi: 255000, weeks: 17, heat: 'cold', sixplex: false, rents: { bachelor: 1450, '1br': 1700, '2br': 2150, '3br': 2550 } },
+  'Scarborough Centre':     { permits: 9,  costLo: 175000, costHi: 250000, weeks: 18, heat: 'cold', sixplex: false, rents: { bachelor: 1400, '1br': 1650, '2br': 2100, '3br': 2500 } },
+  'Scarborough-Agincourt':  { permits: 2,  costLo: 175000, costHi: 248000, weeks: 22, heat: 'cold', sixplex: false, rents: { bachelor: 1350, '1br': 1600, '2br': 2050, '3br': 2450 } },
+  'Scarborough North':      { permits: 6,  costLo: 178000, costHi: 252000, weeks: 19, heat: 'cold', sixplex: false, rents: { bachelor: 1400, '1br': 1650, '2br': 2100, '3br': 2500 } },
+  'Scarborough-Rouge Park': { permits: 4,  costLo: 175000, costHi: 248000, weeks: 21, heat: 'cold', sixplex: false, rents: { bachelor: 1350, '1br': 1600, '2br': 2050, '3br': 2450 } },
+  'Scarborough-Guildwood':  { permits: 5,  costLo: 178000, costHi: 252000, weeks: 20, heat: 'cold', sixplex: false, rents: { bachelor: 1400, '1br': 1650, '2br': 2100, '3br': 2500 } },
 };
 
-// Ward name aliases (neighbourhood → ward) for address matching
-const wardAliases = {
-  'ossington': 'Davenport', 'dufferin': 'Davenport', 'bloor west': 'Davenport', 'dovercourt': 'Davenport', 'wallace': 'Davenport',
-  'liberty': 'Spadina-Fort York', 'king west': 'Spadina-Fort York', 'cityplace': 'Spadina-Fort York', 'harbourfront': 'Spadina-Fort York', 'niagara': 'Spadina-Fort York',
-  'annex': 'University-Rosedale', 'yorkville': 'University-Rosedale', 'cabbagetown': 'University-Rosedale', 'church': 'University-Rosedale', 'rosedale': 'University-Rosedale',
-  'parkdale': 'Parkdale-High Park', 'high park': 'Parkdale-High Park', 'roncesvalles': 'Parkdale-High Park', 'roncy': 'Parkdale-High Park', 'swansea': 'Parkdale-High Park',
-  'danforth': 'Toronto-Danforth', 'greektown': 'Toronto-Danforth', 'riverdale': 'Toronto-Danforth', 'leslieville': 'Toronto-Danforth', 'playter': 'Toronto-Danforth',
-  'beaches': 'Beaches-East York', 'the beach': 'Beaches-East York', 'east york': 'Beaches-East York', 'woodbine': 'Beaches-East York',
-  'st clair': "Toronto-St. Paul's", 'forest hill': "Toronto-St. Paul's", 'deer park': "Toronto-St. Paul's", 'summerhill': "Toronto-St. Paul's", 'midtown': "Toronto-St. Paul's",
-  'junction': 'York South-Weston', 'weston': 'York South-Weston', 'mount dennis': 'York South-Weston', 'stockyards': 'York South-Weston',
-  'yonge eglinton': 'Eglinton-Lawrence', 'lawrence park': 'Eglinton-Lawrence', 'leaside': 'Eglinton-Lawrence', 'bayview': 'Eglinton-Lawrence',
-  'north york': 'Willowdale', 'willowdale': 'Willowdale', 'sheppard': 'Willowdale',
-  'etobicoke': 'Etobicoke Centre', 'islington': 'Etobicoke Centre', 'kipling': 'Etobicoke Centre',
-  'mimico': 'Etobicoke-Lakeshore', 'long branch': 'Etobicoke-Lakeshore', 'new toronto': 'Etobicoke-Lakeshore',
-  'scarborough': 'Scarborough Centre', 'agincourt': 'Scarborough-Agincourt', 'rouge': 'Scarborough-Rouge Park', 'guildwood': 'Scarborough-Guildwood',
-  'downtown': 'Toronto Centre', 'queen west': 'Toronto Centre', 'kensington': 'Toronto Centre', 'chinatown': 'Toronto Centre',
-  'don mills': 'Don Valley East', 'thorncliffe': 'Don Valley East',
-  'bridle path': 'Don Valley West', 'sunnybrook': 'Don Valley West',
-};
+// City-wide average rents (fallback if ward not determined)
+const CITYWIDE_RENTS = { bachelor: 1800, '1br': 2250, '2br': 2700, '3br': 3200 };
 
-// Populate ward dropdown
-const evalWardSelect = document.getElementById('evalWard');
-Object.keys(evalWardData).sort().forEach(name => {
-  const opt = document.createElement('option');
-  opt.value = name;
-  opt.textContent = name;
-  evalWardSelect.appendChild(opt);
-});
+// ---- WARD BOUNDARY GEOJSON ----
+let wardBoundaries = null;
+let wardBoundariesLoaded = false;
 
-// Modal open/close
+async function loadWardBoundaries() {
+  try {
+    const pkgRes = await fetch(
+      'https://ckan0.cf.opendata.inter.prod-toronto.ca/api/3/action/package_show?id=city-wards'
+    );
+    const pkg = await pkgRes.json();
+    const geo = pkg.result.resources.find(r =>
+      (r.format || '').toUpperCase() === 'GEOJSON' || (r.url || '').endsWith('.geojson')
+    );
+    if (geo) {
+      const geoRes = await fetch(geo.url);
+      wardBoundaries = await geoRes.json();
+      wardBoundariesLoaded = true;
+      console.log('[MPLXINT] Ward boundaries loaded:', wardBoundaries.features.length, 'wards');
+      return;
+    }
+  } catch (e) {
+    console.warn('[MPLXINT] Could not load ward boundaries from CKAN:', e);
+  }
+  // Fallback: try direct URL
+  try {
+    const res = await fetch(
+      'https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/5e7a8234-f805-43ac-820f-03d7c360b588/resource/047d2a25-286a-4411-899e-ce8c5b295180/download/city-wards-data-2945.geojson'
+    );
+    wardBoundaries = await res.json();
+    wardBoundariesLoaded = true;
+    console.log('[MPLXINT] Ward boundaries loaded (direct):', wardBoundaries.features.length);
+  } catch (e2) {
+    console.warn('[MPLXINT] Ward boundaries unavailable. Using name-matching fallback.');
+  }
+}
+
+// Point-in-polygon (ray casting)
+function pointInPolygon(lat, lng, ring) {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const xi = ring[i][1], yi = ring[i][0]; // GeoJSON = [lng, lat]
+    const xj = ring[j][1], yj = ring[j][0];
+    if (((yi > lng) !== (yj > lng)) && (lat < (xj - xi) * (lng - yi) / (yj - yi) + xi)) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+function findWardForPoint(lat, lng) {
+  if (!wardBoundaries) return null;
+  for (const f of wardBoundaries.features) {
+    const g = f.geometry;
+    const rings = g.type === 'Polygon' ? [g.coordinates[0]]
+                : g.type === 'MultiPolygon' ? g.coordinates.map(p => p[0])
+                : [];
+    for (const ring of rings) {
+      if (pointInPolygon(lat, lng, ring)) {
+        const name = f.properties.AREA_NAME || f.properties.name || f.properties.NAME || '';
+        return { name, number: f.properties.AREA_SHORT_CODE || '', props: f.properties };
+      }
+    }
+  }
+  return null;
+}
+
+// Match ward name from GeoJSON to our evalWardData keys
+function matchWardKey(geoName) {
+  if (!geoName) return null;
+  const lower = geoName.toLowerCase();
+  // Direct match
+  for (const key of Object.keys(evalWardData)) {
+    if (lower.includes(key.toLowerCase()) || key.toLowerCase().includes(lower)) return key;
+  }
+  // Partial match (first significant word)
+  const words = lower.split(/[\s\-()]+/).filter(w => w.length > 3);
+  for (const word of words) {
+    for (const key of Object.keys(evalWardData)) {
+      if (key.toLowerCase().includes(word)) return key;
+    }
+  }
+  return null;
+}
+
+// ---- GEOCODING (Nominatim fallback when no Google API key) ----
+async function geocodeNominatim(address) {
+  const q = encodeURIComponent(address);
+  const res = await fetch(
+    `https://nominatim.openstreetmap.org/search?format=json&q=${q}&countrycodes=ca&viewbox=-79.64,43.58,-79.12,43.86&bounded=1&limit=1`,
+    { headers: { 'Accept': 'application/json' } }
+  );
+  const results = await res.json();
+  if (results.length > 0) {
+    return {
+      lat: parseFloat(results[0].lat),
+      lng: parseFloat(results[0].lon),
+      address: results[0].display_name,
+    };
+  }
+  return null;
+}
+
+// ---- GOOGLE MAPS AUTOCOMPLETE ----
+let googleAutocomplete = null;
+let selectedPlace = null;
+
+function loadGoogleMapsApi(key) {
+  return new Promise((resolve, reject) => {
+    if (window.google && window.google.maps && window.google.maps.places) {
+      resolve();
+      return;
+    }
+    window._mplxGoogleLoaded = resolve;
+    const s = document.createElement('script');
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places&callback=_mplxGoogleLoaded`;
+    s.async = true;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+async function initGoogleAutocomplete(key) {
+  try {
+    await loadGoogleMapsApi(key);
+    const input = document.getElementById('evalAddress');
+    googleAutocomplete = new google.maps.places.Autocomplete(input, {
+      types: ['address'],
+      componentRestrictions: { country: 'ca' },
+      bounds: new google.maps.LatLngBounds(
+        new google.maps.LatLng(43.58, -79.64),
+        new google.maps.LatLng(43.86, -79.12)
+      ),
+      strictBounds: true,
+      fields: ['formatted_address', 'geometry', 'address_components'],
+    });
+    googleAutocomplete.addListener('place_changed', onGooglePlaceSelected);
+    document.getElementById('evalApiPrompt').style.display = 'none';
+    console.log('[MPLXINT] Google Places Autocomplete initialized');
+  } catch (e) {
+    console.warn('[MPLXINT] Google Maps API failed to load:', e);
+  }
+}
+
+function onGooglePlaceSelected() {
+  const place = googleAutocomplete.getPlace();
+  if (!place || !place.geometry) {
+    showEvalError('Could not locate that address. Please select from the dropdown suggestions.');
+    return;
+  }
+  const lat = place.geometry.location.lat();
+  const lng = place.geometry.location.lng();
+  resolveAddressToWard(lat, lng, place.formatted_address);
+}
+
+// ---- RESOLVE ADDRESS → WARD ----
+let resolvedWardKey = null;
+
+function resolveAddressToWard(lat, lng, formattedAddress) {
+  hideEvalError();
+
+  // Check Toronto bounds
+  if (lat < 43.58 || lat > 43.86 || lng < -79.64 || lng > -79.12) {
+    showEvalError('This address does not appear to be within Toronto city limits.');
+    hideConfigPanel();
+    return;
+  }
+
+  let wardGeo = findWardForPoint(lat, lng);
+  let wardKey = wardGeo ? matchWardKey(wardGeo.name) : null;
+
+  if (!wardKey && wardBoundariesLoaded) {
+    showEvalError('This address does not fall within a recognized Toronto ward boundary.');
+    hideConfigPanel();
+    return;
+  }
+
+  if (!wardKey && !wardBoundariesLoaded) {
+    // Ward boundaries not loaded — use city-wide defaults
+    wardKey = null;
+  }
+
+  resolvedWardKey = wardKey;
+  selectedPlace = { lat, lng, address: formattedAddress };
+
+  // Show ward badge
+  const badge = document.getElementById('evalWardBadge');
+  const nameEl = document.getElementById('evalWardName');
+  if (wardKey) {
+    nameEl.textContent = wardKey + (wardGeo && wardGeo.number ? ' (Ward ' + wardGeo.number + ')' : '');
+    badge.classList.add('visible');
+  } else {
+    nameEl.textContent = 'Unknown — using city-wide averages';
+    badge.classList.add('visible');
+  }
+
+  // Populate default rents from ward data
+  const rents = wardKey ? evalWardData[wardKey].rents : CITYWIDE_RENTS;
+  document.getElementById('rentBachelor').value = rents.bachelor;
+  document.getElementById('rent1br').value = rents['1br'];
+  document.getElementById('rent2br').value = rents['2br'];
+  document.getElementById('rent3br').value = rents['3br'];
+
+  // Show config panel
+  document.getElementById('evalConfigPanel').style.display = 'block';
+  updateAutoCalcs();
+  updateUnitTotal();
+}
+
+// ---- ERROR / UI HELPERS ----
+function showEvalError(msg) {
+  const el = document.getElementById('evalError');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+function hideEvalError() {
+  document.getElementById('evalError').classList.remove('visible');
+}
+function hideConfigPanel() {
+  document.getElementById('evalConfigPanel').style.display = 'none';
+  document.getElementById('evalWardBadge').classList.remove('visible');
+}
+
+// ---- MODAL OPEN / CLOSE ----
 const backdrop = document.getElementById('evalBackdrop');
 const step1 = document.getElementById('evalStep1');
 const step2 = document.getElementById('evalStep2');
@@ -1607,12 +2235,18 @@ const step2 = document.getElementById('evalStep2');
 function openEvalModal() {
   backdrop.classList.add('open');
   document.body.style.overflow = 'hidden';
-  // reset to step 1
   step1.classList.add('active');
   step2.classList.remove('active');
+  // Reset
   document.getElementById('evalAddress').value = '';
-  evalWardSelect.value = '';
-  document.getElementById('btnAnalyze').disabled = true;
+  hideEvalError();
+  hideConfigPanel();
+  selectedPlace = null;
+  resolvedWardKey = null;
+  // Check Google API key
+  if (!GOOGLE_MAPS_API_KEY && !googleAutocomplete) {
+    document.getElementById('evalApiPrompt').style.display = 'block';
+  }
 }
 function closeEvalModal() {
   backdrop.classList.remove('open');
@@ -1624,63 +2258,218 @@ document.getElementById('evalClose').addEventListener('click', closeEvalModal);
 backdrop.addEventListener('click', e => { if (e.target === backdrop) closeEvalModal(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEvalModal(); });
 
-// Enable analyze button when input provided
+// API key set button
+document.getElementById('btnSetApiKey').addEventListener('click', () => {
+  const key = document.getElementById('evalApiKeyInput').value.trim();
+  if (key) initGoogleAutocomplete(key);
+});
+
+// Nominatim fallback: geocode on Enter when no Google autocomplete
 const addrInput = document.getElementById('evalAddress');
+addrInput.addEventListener('keydown', async (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    if (googleAutocomplete) return; // Google handles it
+    const addr = addrInput.value.trim();
+    if (addr.length < 5) {
+      showEvalError('Please enter a complete Toronto address.');
+      return;
+    }
+    hideEvalError();
+    addrInput.disabled = true;
+    try {
+      const result = await geocodeNominatim(addr);
+      if (!result) {
+        showEvalError('Address not found. Please enter a valid Toronto street address.');
+        return;
+      }
+      resolveAddressToWard(result.lat, result.lng, result.address);
+    } catch (err) {
+      showEvalError('Geocoding failed. Please try again.');
+    } finally {
+      addrInput.disabled = false;
+    }
+  }
+});
+
+// ---- UNIT MIX MANAGEMENT ----
+const unitCounts = { bachelor: 0, '1br': 2, '2br': 2, '3br': 0 };
+const unitIds = { bachelor: 'unitBachelor', '1br': 'unit1br', '2br': 'unit2br', '3br': 'unit3br' };
+
+function updateUnitTotal() {
+  const total = Object.values(unitCounts).reduce((a, b) => a + b, 0);
+  document.getElementById('totalUnits').textContent = total;
+  updateAutoCalcs();
+}
+
+function setUnitCounts(counts) {
+  for (const [type, val] of Object.entries(counts)) {
+    unitCounts[type] = val;
+    document.getElementById(unitIds[type]).textContent = val;
+  }
+  updateUnitTotal();
+}
+
+// Preset buttons
+const presets = {
+  fourplex: { bachelor: 0, '1br': 2, '2br': 2, '3br': 0 },
+  sixplex:  { bachelor: 1, '1br': 2, '2br': 2, '3br': 1 },
+  custom:   null,
+};
+
+document.getElementById('evalPresetBtns').addEventListener('click', (e) => {
+  const btn = e.target.closest('.eval-preset');
+  if (!btn) return;
+  document.querySelectorAll('.eval-preset').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const preset = btn.dataset.preset;
+  if (presets[preset]) setUnitCounts(presets[preset]);
+});
+
+// +/- buttons
+document.getElementById('evalUnitGrid').addEventListener('click', (e) => {
+  const btn = e.target.closest('.eval-unit-btn');
+  if (!btn) return;
+  const row = btn.closest('.eval-unit-row');
+  const type = row.dataset.type;
+  const delta = parseInt(btn.dataset.delta);
+  unitCounts[type] = Math.max(0, Math.min(10, unitCounts[type] + delta));
+  document.getElementById(unitIds[type]).textContent = unitCounts[type];
+  // Switch to custom preset
+  document.querySelectorAll('.eval-preset').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-preset="custom"]').classList.add('active');
+  updateUnitTotal();
+});
+
+// ---- FINANCIAL CALCULATIONS ----
+function parseCurrency(str) {
+  return parseFloat(String(str).replace(/[,$\s]/g, '')) || 0;
+}
+
+function fmtCurrency(n) { return '$' + Math.round(n).toLocaleString(); }
+
+function updateAutoCalcs() {
+  const propVal = parseCurrency(document.getElementById('propValue').value);
+  const totalUnits = Object.values(unitCounts).reduce((a, b) => a + b, 0);
+
+  const propTax = propVal * TORONTO_TAX_RATE;
+  const insurance = totalUnits * INSURANCE_PER_UNIT;
+  const maintenance = propVal * MAINTENANCE_PCT;
+
+  document.getElementById('calcPropTax').textContent = fmtCurrency(propTax) + '/yr';
+  document.getElementById('calcInsurance').textContent = fmtCurrency(insurance) + '/yr';
+  document.getElementById('calcMaintenance').textContent = fmtCurrency(maintenance) + '/yr';
+}
+
+// Auto-update calculations when inputs change
+['propValue', 'occupancyRate', 'opexRate'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateAutoCalcs);
+});
+
+// Mortgage toggle
+document.getElementById('includeMortgage').addEventListener('change', (e) => {
+  document.getElementById('mortgageSection').style.display = e.target.checked ? 'block' : 'none';
+});
+
+// Monthly mortgage payment: M = P * [r(1+r)^n] / [(1+r)^n - 1]
+function calcMortgagePayment(principal, annualRate, years) {
+  if (principal <= 0 || annualRate <= 0 || years <= 0) return 0;
+  const r = annualRate / 12;
+  const n = years * 12;
+  return principal * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+}
+
+// ---- RUN EVALUATION ----
 const analyzeBtn = document.getElementById('btnAnalyze');
+analyzeBtn.addEventListener('click', runEvaluation);
 
-function checkCanAnalyze() {
-  analyzeBtn.disabled = !(addrInput.value.trim().length > 2 || evalWardSelect.value);
-}
-addrInput.addEventListener('input', checkCanAnalyze);
-evalWardSelect.addEventListener('change', checkCanAnalyze);
-
-// Resolve ward from address text
-function resolveWard(text) {
-  const lower = text.toLowerCase();
-  // Direct ward name match
-  for (const name of Object.keys(evalWardData)) {
-    if (lower.includes(name.toLowerCase())) return name;
-  }
-  // Alias match
-  for (const [alias, ward] of Object.entries(wardAliases)) {
-    if (lower.includes(alias)) return ward;
-  }
-  return null;
-}
-
-// Format currency
-function fmt(n) { return '$' + n.toLocaleString(); }
-
-// Run evaluation
 function runEvaluation() {
-  let wardName = evalWardSelect.value;
-  const addr = addrInput.value.trim();
-
-  if (!wardName && addr) {
-    wardName = resolveWard(addr);
-  }
-  if (!wardName) {
-    // Fallback: pick a random ward to demonstrate
-    const keys = Object.keys(evalWardData);
-    wardName = keys[Math.floor(Math.random() * keys.length)];
+  if (!selectedPlace) {
+    showEvalError('Please enter and select a valid Toronto address first.');
+    return;
   }
 
-  const w = evalWardData[wardName];
-  const costAvg = Math.round((w.costLo + w.costHi) / 2);
-  // Annual income: 2x 1BR + 2x 2BR, 12 months
-  const annualIncome = (2 * w.rent1br + 2 * w.rent2br) * 12;
-  const annualIncomeLo = Math.round(annualIncome * 0.9);
-  const annualIncomeHi = Math.round(annualIncome * 1.1);
-  const breakEvenLo = (w.costLo / annualIncomeHi).toFixed(1);
-  const breakEvenHi = (w.costHi / annualIncomeLo).toFixed(1);
-  const value20yr = annualIncome * 20 - costAvg;
+  const w = resolvedWardKey ? evalWardData[resolvedWardKey] : null;
+  const wardName = resolvedWardKey || 'City-wide Average';
+  const addressDisplay = selectedPlace.address || wardName;
 
-  const heatLabel = { hot: 'HOT', warm: 'WARM', cool: 'COOL', cold: 'COLD' }[w.heat];
-  const heatColor = { hot: 'red', warm: 'amber', cool: 'green', cold: 'blue' }[w.heat];
+  // Unit mix income
+  const rentBachelor = parseCurrency(document.getElementById('rentBachelor').value);
+  const rent1br = parseCurrency(document.getElementById('rent1br').value);
+  const rent2br = parseCurrency(document.getElementById('rent2br').value);
+  const rent3br = parseCurrency(document.getElementById('rent3br').value);
 
-  const addressDisplay = addr || wardName;
+  const monthlyGross =
+    (unitCounts.bachelor * rentBachelor) +
+    (unitCounts['1br'] * rent1br) +
+    (unitCounts['2br'] * rent2br) +
+    (unitCounts['3br'] * rent3br);
+  const annualGross = monthlyGross * 12;
+  const totalUnits = Object.values(unitCounts).reduce((a, b) => a + b, 0);
 
-  const html = `
+  // Financial parameters
+  const propVal = parseCurrency(document.getElementById('propValue').value);
+  const occupancy = parseFloat(document.getElementById('occupancyRate').value) / 100 || 0.95;
+  const opexPct = parseFloat(document.getElementById('opexRate').value) / 100 || 0.35;
+
+  // Effective gross income (after vacancy)
+  const effectiveGross = annualGross * occupancy;
+
+  // Operating costs breakdown
+  const propTax = propVal * TORONTO_TAX_RATE;
+  const insurance = totalUnits * INSURANCE_PER_UNIT;
+  const maintenance = propVal * MAINTENANCE_PCT;
+  const otherOpex = effectiveGross * opexPct - propTax - insurance - maintenance;
+  const totalOpex = propTax + insurance + maintenance + Math.max(0, otherOpex);
+
+  // Net Operating Income
+  const noi = effectiveGross - totalOpex;
+  const capRate = propVal > 0 ? (noi / propVal * 100) : 0;
+
+  // Conversion cost
+  const costLo = w ? w.costLo : 195000;
+  const costHi = w ? w.costHi : 300000;
+  const costAvg = Math.round((costLo + costHi) / 2);
+
+  // Break-even (conversion cost / NOI)
+  const breakEven = noi > 0 ? (costAvg / noi).toFixed(1) : 'N/A';
+
+  // 20-year projection
+  const value20yr = (noi * 20) - costAvg;
+
+  // Mortgage analysis
+  const includeMortgage = document.getElementById('includeMortgage').checked;
+  let mortgageMonthly = 0;
+  let mortgageAnnual = 0;
+  let cashFlowAfterDebt = noi;
+  let mortgagePrincipal = 0;
+  let mortgageRateDisplay = 0;
+  let mortgageAmort = 0;
+  if (includeMortgage) {
+    mortgagePrincipal = parseCurrency(document.getElementById('mortgageAmount').value);
+    mortgageRateDisplay = parseFloat(document.getElementById('mortgageRate').value) || 5.5;
+    mortgageAmort = parseInt(document.getElementById('mortgageAmort').value) || 25;
+    mortgageMonthly = calcMortgagePayment(mortgagePrincipal, mortgageRateDisplay / 100, mortgageAmort);
+    mortgageAnnual = mortgageMonthly * 12;
+    cashFlowAfterDebt = noi - mortgageAnnual;
+  }
+
+  // Ward metrics
+  const permits = w ? w.permits : '—';
+  const weeks = w ? w.weeks : '—';
+  const heat = w ? w.heat : 'cool';
+  const heatLabel = { hot: 'HOT', warm: 'WARM', cool: 'COOL', cold: 'COLD' }[heat];
+  const sixplex = w ? w.sixplex : false;
+
+  // Build unit mix summary with pre-calculated annual values
+  const unitLineItems = [];
+  if (unitCounts.bachelor > 0) unitLineItems.push({ label: `${unitCounts.bachelor} &times; Bachelor @ ${fmtCurrency(rentBachelor)}/mo`, annual: unitCounts.bachelor * rentBachelor * 12 });
+  if (unitCounts['1br'] > 0) unitLineItems.push({ label: `${unitCounts['1br']} &times; 1BR @ ${fmtCurrency(rent1br)}/mo`, annual: unitCounts['1br'] * rent1br * 12 });
+  if (unitCounts['2br'] > 0) unitLineItems.push({ label: `${unitCounts['2br']} &times; 2BR @ ${fmtCurrency(rent2br)}/mo`, annual: unitCounts['2br'] * rent2br * 12 });
+  if (unitCounts['3br'] > 0) unitLineItems.push({ label: `${unitCounts['3br']} &times; 3BR @ ${fmtCurrency(rent3br)}/mo`, annual: unitCounts['3br'] * rent3br * 12 });
+
+  // ---- BUILD RESULTS HTML ----
+  let html = `
     <div style="font-family:var(--mono);font-size:0.8rem;font-weight:700;color:var(--text-bright);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">
       Property Analysis &mdash; ${wardName}
     </div>
@@ -1698,11 +2487,7 @@ function runEvaluation() {
       </div>
       <div class="eval-row">
         <span class="eval-row-label">Sixplex eligible</span>
-        <span class="eval-row-value ${w.sixplex ? 'green' : 'amber'}">${w.sixplex ? 'YES &mdash; By-law 654-2025' : 'NOT YET &mdash; Expansion pending'}</span>
-      </div>
-      <div class="eval-row">
-        <span class="eval-row-label">Development charges</span>
-        <span class="eval-row-value green">WAIVED (up to ${w.sixplex ? '6' : '4'} units)</span>
+        <span class="eval-row-value ${sixplex ? 'green' : 'amber'}">${sixplex ? 'YES &mdash; By-law 654-2025' : 'NOT YET &mdash; Expansion pending'}</span>
       </div>
       <div class="eval-row">
         <span class="eval-row-label">Parking minimum</span>
@@ -1714,19 +2499,15 @@ function runEvaluation() {
       <div class="eval-section-head amber">&#9889; Conversion Cost Estimate</div>
       <div class="eval-row">
         <span class="eval-row-label">Low estimate</span>
-        <span class="eval-row-value">${fmt(w.costLo)}</span>
+        <span class="eval-row-value">${fmtCurrency(costLo)}</span>
       </div>
       <div class="eval-row">
         <span class="eval-row-label">High estimate</span>
-        <span class="eval-row-value">${fmt(w.costHi)}</span>
+        <span class="eval-row-value">${fmtCurrency(costHi)}</span>
       </div>
       <div class="eval-row">
         <span class="eval-row-label">Average</span>
-        <span class="eval-row-value amber">${fmt(costAvg)}</span>
-      </div>
-      <div class="eval-row">
-        <span class="eval-row-label">DC savings (waived)</span>
-        <span class="eval-row-value green">${fmt(200000)} &ndash; ${fmt(270000)}</span>
+        <span class="eval-row-value amber">${fmtCurrency(costAvg)}</span>
       </div>
     </div>
 
@@ -1734,74 +2515,140 @@ function runEvaluation() {
       <div class="eval-section-head blue">&#9608; Ward Metrics</div>
       <div class="eval-row">
         <span class="eval-row-label">2024 Permits issued</span>
-        <span class="eval-row-value">${w.permits}</span>
+        <span class="eval-row-value">${permits}</span>
       </div>
       <div class="eval-row">
         <span class="eval-row-label">Avg permit timeline</span>
-        <span class="eval-row-value">${w.weeks} weeks</span>
+        <span class="eval-row-value">${weeks !== '—' ? weeks + ' weeks' : '—'}</span>
       </div>
       <div class="eval-row">
         <span class="eval-row-label">Activity level</span>
-        <span class="eval-heat-badge ${w.heat}">${heatLabel}</span>
+        <span class="eval-heat-badge ${heat}">${heatLabel}</span>
       </div>
     </div>
 
     <div class="eval-section">
-      <div class="eval-section-head cyan">&#9733; Potential Annual Income (4-unit config)</div>
-      <div class="eval-row">
-        <span class="eval-row-label">2 &times; 1BR @ ${fmt(w.rent1br)}/mo</span>
-        <span class="eval-row-value">${fmt(w.rent1br * 2 * 12)}/yr</span>
+      <div class="eval-section-head cyan">&#9733; Revenue Analysis (${totalUnits}-unit config)</div>
+      ${unitLineItems.map(u => `<div class="eval-row"><span class="eval-row-label">${u.label}</span><span class="eval-row-value">${fmtCurrency(u.annual)}/yr</span></div>`).join('')}
+      <div class="eval-row" style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;">
+        <span class="eval-row-label">Monthly gross income</span>
+        <span class="eval-row-value">${fmtCurrency(monthlyGross)}/mo</span>
       </div>
       <div class="eval-row">
-        <span class="eval-row-label">2 &times; 2BR @ ${fmt(w.rent2br)}/mo</span>
-        <span class="eval-row-value">${fmt(w.rent2br * 2 * 12)}/yr</span>
+        <span class="eval-row-label">Annual gross income</span>
+        <span class="eval-row-value green">${fmtCurrency(annualGross)}/yr</span>
+      </div>
+      <div class="eval-row">
+        <span class="eval-row-label">Effective gross (${Math.round(occupancy * 100)}% occupancy)</span>
+        <span class="eval-row-value">${fmtCurrency(effectiveGross)}/yr</span>
+      </div>
+    </div>
+
+    <div class="eval-section">
+      <div class="eval-section-head red">&#9660; Operating Expenses</div>
+      <div class="eval-row">
+        <span class="eval-row-label">Property tax (Toronto 2025: 0.754%)</span>
+        <span class="eval-row-value">${fmtCurrency(propTax)}/yr</span>
+      </div>
+      <div class="eval-row">
+        <span class="eval-row-label">Insurance ($${INSURANCE_PER_UNIT}/unit)</span>
+        <span class="eval-row-value">${fmtCurrency(insurance)}/yr</span>
+      </div>
+      <div class="eval-row">
+        <span class="eval-row-label">Maintenance reserve (1% of value)</span>
+        <span class="eval-row-value">${fmtCurrency(maintenance)}/yr</span>
+      </div>
+      ${otherOpex > 0 ? `<div class="eval-row">
+        <span class="eval-row-label">Other operating (mgmt, utilities, etc.)</span>
+        <span class="eval-row-value">${fmtCurrency(otherOpex)}/yr</span>
+      </div>` : ''}
+      <div class="eval-row" style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;">
+        <span class="eval-row-label">Total operating expenses</span>
+        <span class="eval-row-value red">${fmtCurrency(totalOpex)}/yr</span>
+      </div>
+    </div>
+
+    <div class="eval-section">
+      <div class="eval-section-head purple">&#9650; Returns & ROI</div>
+      <div class="eval-row">
+        <span class="eval-row-label">Net Operating Income (NOI)</span>
+        <span class="eval-row-value ${noi >= 0 ? 'green' : 'red'}">${fmtCurrency(noi)}/yr</span>
+      </div>
+      <div class="eval-row">
+        <span class="eval-row-label">Cap rate</span>
+        <span class="eval-row-value ${capRate >= 5 ? 'green' : capRate >= 3 ? 'amber' : 'red'}">${capRate.toFixed(2)}%</span>
+      </div>
+      <div class="eval-row">
+        <span class="eval-row-label">Break-even (conversion cost / NOI)</span>
+        <span class="eval-row-value amber">${breakEven}${breakEven !== 'N/A' ? ' years' : ''}</span>
+      </div>
+      <div class="eval-row">
+        <span class="eval-row-label">20-year net value (NOI&times;20 &minus; conversion)</span>
+        <span class="eval-row-value ${value20yr >= 0 ? 'green' : 'red'}">${fmtCurrency(value20yr)}</span>
+      </div>
+    </div>`;
+
+  if (includeMortgage) {
+    const cashOnCash = (propVal - mortgagePrincipal) > 0
+      ? (cashFlowAfterDebt / (propVal - mortgagePrincipal) * 100).toFixed(2) : '—';
+    html += `
+    <div class="eval-section">
+      <div class="eval-section-head blue">&#9670; Mortgage Analysis</div>
+      <div class="eval-row">
+        <span class="eval-row-label">Principal</span>
+        <span class="eval-row-value">${fmtCurrency(mortgagePrincipal)}</span>
+      </div>
+      <div class="eval-row">
+        <span class="eval-row-label">Rate / Amortization</span>
+        <span class="eval-row-value">${mortgageRateDisplay}% / ${mortgageAmort} yr</span>
+      </div>
+      <div class="eval-row">
+        <span class="eval-row-label">Monthly payment</span>
+        <span class="eval-row-value">${fmtCurrency(mortgageMonthly)}/mo</span>
+      </div>
+      <div class="eval-row">
+        <span class="eval-row-label">Annual debt service</span>
+        <span class="eval-row-value red">${fmtCurrency(mortgageAnnual)}/yr</span>
       </div>
       <div class="eval-row" style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px;">
-        <span class="eval-row-label">Total gross annual income</span>
-        <span class="eval-row-value green">${fmt(annualIncomeLo)} &ndash; ${fmt(annualIncomeHi)}</span>
-      </div>
-    </div>
-
-    <div class="eval-section">
-      <div class="eval-section-head purple">&#9650; Simple ROI</div>
-      <div class="eval-row">
-        <span class="eval-row-label">Break-even</span>
-        <span class="eval-row-value amber">${breakEvenLo} &ndash; ${breakEvenHi} years</span>
+        <span class="eval-row-label">Cash flow after debt</span>
+        <span class="eval-row-value ${cashFlowAfterDebt >= 0 ? 'green' : 'red'}">${fmtCurrency(cashFlowAfterDebt)}/yr</span>
       </div>
       <div class="eval-row">
-        <span class="eval-row-label">20-year gross value (income &minus; cost)</span>
-        <span class="eval-row-value green">${fmt(value20yr)}</span>
+        <span class="eval-row-label">Cash-on-cash return</span>
+        <span class="eval-row-value">${cashOnCash}%</span>
       </div>
-    </div>
+    </div>`;
+  }
 
+  html += `
     <div class="eval-disclaimer">
-      Estimates based on 2024 Toronto market data. Actual costs, rents, and timelines vary by
-      property condition, lot size, and contractor. This tool provides directional guidance only
-      and does not constitute financial advice. Consult a licensed professional before proceeding.
-    </div>
-  `;
+      Estimates based on 2024–2025 Toronto market data. Property tax uses the City of Toronto
+      2025 residential rate (0.754087%). Rental rates sourced from CMHC Rental Market Survey &amp;
+      market comparables. Insurance and maintenance are industry-standard estimates. Actual costs,
+      rents, and timelines vary by property condition, lot size, and contractor. This tool provides
+      directional guidance only and does not constitute financial advice. Consult a licensed
+      professional before proceeding.
+    </div>`;
 
   document.getElementById('evalResults').innerHTML = html;
   step1.classList.remove('active');
   step2.classList.add('active');
 }
 
-analyzeBtn.addEventListener('click', runEvaluation);
-addrInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !analyzeBtn.disabled) runEvaluation();
-});
-
-// Evaluate another
+// ---- EVALUATE ANOTHER ----
 document.getElementById('btnEvalAnother').addEventListener('click', () => {
   step2.classList.remove('active');
   step1.classList.add('active');
-  addrInput.value = '';
-  evalWardSelect.value = '';
-  analyzeBtn.disabled = true;
-  addrInput.focus();
+  document.getElementById('evalAddress').value = '';
+  hideEvalError();
+  hideConfigPanel();
+  selectedPlace = null;
+  resolvedWardKey = null;
+  document.getElementById('evalAddress').focus();
 });
 
-// Download report as text
+// ---- DOWNLOAD REPORT ----
 document.getElementById('btnDownload').addEventListener('click', () => {
   const content = document.getElementById('evalResults').innerText;
   const blob = new Blob(
@@ -1810,9 +2657,11 @@ document.getElementById('btnDownload').addEventListener('click', () => {
      '════════════════════════════════════════\n\n' +
      content + '\n\n' +
      '════════════════════════════════════════\n' +
-     'DISCLAIMER: Estimates based on 2024 Toronto market data.\n' +
+     'DISCLAIMER: Estimates based on 2024-2025 Toronto market data.\n' +
+     'Property tax: City of Toronto 2025 rate (0.754087%)\n' +
+     'Rental data: CMHC Rental Market Survey + market comparables\n' +
      'This does not constitute financial advice.\n' +
-     'Source: mplxint.watch | City of Toronto Open Data\n'],
+     'Source: mplxint | City of Toronto Open Data | CMHC\n'],
     { type: 'text/plain' }
   );
   const a = document.createElement('a');
@@ -1821,6 +2670,14 @@ document.getElementById('btnDownload').addEventListener('click', () => {
   a.click();
   URL.revokeObjectURL(a.href);
 });
+
+// ---- INITIALIZATION ----
+// Load ward boundaries on page load
+loadWardBoundaries();
+// Load Google Maps if key is configured
+if (GOOGLE_MAPS_API_KEY) {
+  initGoogleAutocomplete(GOOGLE_MAPS_API_KEY);
+}
 
 // ============================================================
 //  DENSITY INDEX — Periodically shift level
