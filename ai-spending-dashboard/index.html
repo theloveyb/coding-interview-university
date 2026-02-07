@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Spending Dashboard — Inference & Industry Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --surface2: #232735;
+            --border: #2e3345;
+            --text: #e4e6f0;
+            --text-dim: #8b8fa3;
+            --accent: #6c5ce7;
+            --accent2: #00cec9;
+            --accent3: #fd79a8;
+            --accent4: #fdcb6e;
+            --accent5: #55efc4;
+            --up: #00b894;
+            --down: #d63031;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1d27 0%, #2d1b69 50%, #1a1d27 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 2rem 2rem 1.5rem;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7, #fd79a8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.25rem;
+        }
+
+        .header p {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .last-updated {
+            display: inline-block;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--accent2);
+            background: rgba(0,206,201,0.1);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            border: 1px solid rgba(0,206,201,0.2);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .kpi-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .kpi-card:nth-child(1)::before { background: var(--accent); }
+        .kpi-card:nth-child(2)::before { background: var(--accent2); }
+        .kpi-card:nth-child(3)::before { background: var(--accent3); }
+        .kpi-card:nth-child(4)::before { background: var(--accent4); }
+        .kpi-card:nth-child(5)::before { background: var(--accent5); }
+        .kpi-card:nth-child(6)::before { background: #74b9ff; }
+
+        .kpi-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-dim);
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .kpi-change {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .kpi-change.up { color: var(--up); }
+        .kpi-change.down { color: var(--down); }
+
+        .kpi-sub {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.25rem;
+        }
+
+        /* Chart sections */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-card h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .chart-card .chart-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 320px;
+        }
+
+        .chart-container.tall {
+            height: 380px;
+        }
+
+        /* News section */
+        .news-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .news-section h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1rem;
+        }
+
+        .news-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: border-color 0.2s;
+        }
+
+        .news-card:hover {
+            border-color: var(--accent);
+        }
+
+        .news-date {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--accent2);
+            margin-bottom: 0.4rem;
+        }
+
+        .news-card h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .news-card p {
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        .news-tag {
+            display: inline-block;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 0.15rem 0.5rem;
+            border-radius: 3px;
+            margin-top: 0.6rem;
+        }
+
+        .news-tag.capex { background: rgba(108,92,231,0.2); color: #a29bfe; }
+        .news-tag.inference { background: rgba(0,206,201,0.2); color: #81ecec; }
+        .news-tag.market { background: rgba(253,203,110,0.2); color: #ffeaa7; }
+        .news-tag.enterprise { background: rgba(253,121,168,0.2); color: #fab1a0; }
+        .news-tag.chips { background: rgba(85,239,196,0.2); color: #55efc4; }
+        .news-tag.risk { background: rgba(214,48,49,0.2); color: #ff7675; }
+
+        /* Insight callout */
+        .insight-bar {
+            background: linear-gradient(135deg, rgba(108,92,231,0.15), rgba(0,206,201,0.1));
+            border: 1px solid rgba(108,92,231,0.3);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .insight-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .insight-bar h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .insight-bar p {
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        /* Sources */
+        .sources {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .sources h2 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .sources-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 0.4rem;
+        }
+
+        .sources-list a {
+            font-size: 0.78rem;
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .sources-list a:hover {
+            text-decoration: underline;
+        }
+
+        /* Data table */
+        .data-table-wrapper {
+            overflow-x: auto;
+        }
+
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+
+        table.data-table th {
+            text-align: left;
+            padding: 0.6rem 0.8rem;
+            border-bottom: 2px solid var(--border);
+            color: var(--text-dim);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        table.data-table td {
+            padding: 0.6rem 0.8rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        table.data-table tr:hover td {
+            background: rgba(108,92,231,0.05);
+        }
+
+        .bar-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .bar-fill {
+            height: 8px;
+            border-radius: 4px;
+            background: var(--accent);
+        }
+
+        /* Tabs */
+        .tab-row {
+            display: flex;
+            gap: 0.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .tab-btn:hover:not(.active) {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>AI Spending & Inference Tracker</h1>
+    <p>Tracking global AI investment, inference costs, and industry trends</p>
+    <span class="last-updated" id="lastUpdated">Last updated: Feb 7, 2026</span>
+</div>
+
+<div class="container">
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Global AI Spending 2026</div>
+            <div class="kpi-value">$2.52T</div>
+            <div class="kpi-change up">+44% YoY</div>
+            <div class="kpi-sub">Source: Gartner, Jan 2026</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Hyperscaler AI Capex 2026</div>
+            <div class="kpi-value">$635B+</div>
+            <div class="kpi-change up">+67-74% YoY</div>
+            <div class="kpi-sub">Amazon, Google, Microsoft, Meta combined</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Inference Share of AI Compute</div>
+            <div class="kpi-value">~67%</div>
+            <div class="kpi-change up">Was 33% in 2023</div>
+            <div class="kpi-sub">2026 marks training/inference crossover</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">GPT-4-Class Cost / 1M Tokens</div>
+            <div class="kpi-value">$0.07</div>
+            <div class="kpi-change up">Down from $20 in 2023</div>
+            <div class="kpi-sub">~280x cost reduction in 2 years</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">NVIDIA Data Center Rev (Q3 FY26)</div>
+            <div class="kpi-value">$51.2B</div>
+            <div class="kpi-change up">+66% YoY</div>
+            <div class="kpi-sub">91% of total NVIDIA revenue</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">AI Share of VC Funding</div>
+            <div class="kpi-value">63%</div>
+            <div class="kpi-change up">Up from 23% in 2020</div>
+            <div class="kpi-sub">Through Q3 2025</div>
+        </div>
+    </div>
+
+    <!-- Key Insight -->
+    <div class="insight-bar">
+        <div class="insight-icon">&#9888;</div>
+        <div>
+            <h3>Key trend: Inference is overtaking training as the dominant AI cost</h3>
+            <p>2026 marks the inflection point where inference spending surpasses training. Despite per-token costs dropping ~280x, total inference spending grew 320% as usage scales exponentially faster than costs decline. AI workload volume has grown 31x. Enterprise AI is moving from experimentation to core operations &mdash; 80%+ of enterprises will have deployed GenAI apps by end of 2026.</p>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h2>Global AI Spending</h2>
+            <div class="chart-subtitle">Total worldwide AI spending by year (Gartner)</div>
+            <div class="chart-container">
+                <canvas id="globalSpendingChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h2>Inference vs. Training Compute Share</h2>
+            <div class="chart-subtitle">Percentage of total AI compute by workload type</div>
+            <div class="chart-container">
+                <canvas id="inferenceTrainingChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h2>Hyperscaler AI Capex (2025 vs. 2026)</h2>
+            <div class="chart-subtitle">Capital expenditure by company ($B, guided/estimated)</div>
+            <div class="chart-container">
+                <canvas id="capexChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h2>Inference Cost per 1M Tokens (GPT-4 class)</h2>
+            <div class="chart-subtitle">Price decline for frontier-model inference</div>
+            <div class="chart-container">
+                <canvas id="inferenceCostChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-card full-width">
+            <h2>NVIDIA Data Center Revenue</h2>
+            <div class="chart-subtitle">Quarterly revenue ($B) &mdash; the primary proxy for AI compute demand</div>
+            <div class="chart-container">
+                <canvas id="nvidiaChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Breakdown Table -->
+    <div class="chart-card" style="margin-bottom:1.5rem;">
+        <h2>AI Spending Breakdown by Segment (2026)</h2>
+        <div class="chart-subtitle">Key segments and their projected spend</div>
+        <div class="data-table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Segment</th>
+                        <th>2026 Projected</th>
+                        <th>Growth</th>
+                        <th>Relative Scale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Total AI Spending (Gartner)</td>
+                        <td><strong>$2.52T</strong></td>
+                        <td style="color:var(--up)">+44%</td>
+                        <td><div class="bar-cell"><div class="bar-fill" style="width:100%;background:var(--accent)"></div></div></td>
+                    </tr>
+                    <tr>
+                        <td>GenAI Spending</td>
+                        <td><strong>$644B</strong></td>
+                        <td style="color:var(--up)">+76%</td>
+                        <td><div class="bar-cell"><div class="bar-fill" style="width:25%;background:var(--accent3)"></div></div></td>
+                    </tr>
+                    <tr>
+                        <td>Hyperscaler Capex (Big 4)</td>
+                        <td><strong>$635-665B</strong></td>
+                        <td style="color:var(--up)">+67-74%</td>
+                        <td><div class="bar-cell"><div class="bar-fill" style="width:26%;background:var(--accent2)"></div></div></td>
+                    </tr>
+                    <tr>
+                        <td>AI Server Spending</td>
+                        <td><strong>$330B</strong></td>
+                        <td style="color:var(--up)">+23%</td>
+                        <td><div class="bar-cell"><div class="bar-fill" style="width:13%;background:var(--accent4)"></div></div></td>
+                    </tr>
+                    <tr>
+                        <td>AI Chip Spending</td>
+                        <td><strong>$268B</strong></td>
+                        <td style="color:var(--up)">+28%</td>
+                        <td><div class="bar-cell"><div class="bar-fill" style="width:10.6%;background:var(--accent5)"></div></div></td>
+                    </tr>
+                    <tr>
+                        <td>AI Infrastructure Software</td>
+                        <td><strong>$230B</strong></td>
+                        <td style="color:var(--up)">~4x vs 2024</td>
+                        <td><div class="bar-cell"><div class="bar-fill" style="width:9%;background:#74b9ff"></div></div></td>
+                    </tr>
+                    <tr>
+                        <td>Inference-Optimized Chip Market</td>
+                        <td><strong>>$50B</strong></td>
+                        <td style="color:var(--up)">Rapid growth</td>
+                        <td><div class="bar-cell"><div class="bar-fill" style="width:2%;background:#a29bfe"></div></div></td>
+                    </tr>
+                    <tr>
+                        <td>AI-Optimized IaaS</td>
+                        <td><strong>$37.5B</strong></td>
+                        <td style="color:var(--up)">+105%</td>
+                        <td><div class="bar-cell"><div class="bar-fill" style="width:1.5%;background:#ffeaa7"></div></div></td>
+                    </tr>
+                    <tr>
+                        <td>Consumer AI Market</td>
+                        <td><strong>~$12B</strong></td>
+                        <td style="color:var(--text-dim)">Growing</td>
+                        <td><div class="bar-cell"><div class="bar-fill" style="width:0.5%;min-width:4px;background:#fd79a8"></div></div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Cloud Provider Revenue -->
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h2>Cloud Provider Revenue (Q2 2025)</h2>
+            <div class="chart-subtitle">Quarterly revenue and AI-driven growth</div>
+            <div class="chart-container">
+                <canvas id="cloudRevenueChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <h2>Consumer AI Market Share</h2>
+            <div class="chart-subtitle">Chatbot web traffic share (2025)</div>
+            <div class="chart-container">
+                <canvas id="consumerShareChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- News Section -->
+    <div class="news-section">
+        <h2>Latest News & Developments</h2>
+        <div class="news-grid">
+            <div class="news-card">
+                <div class="news-date">Feb 6, 2026</div>
+                <h3>Tech AI Spending Approaches $700 Billion in 2026</h3>
+                <p>Combined hyperscaler capex could reach $700B, comparable to Sweden's GDP. Amazon guides $200B, Alphabet up to $185B. Analysts warn of significant free cash flow pressure. Amazon projected at -$17B to -$28B FCF.</p>
+                <span class="news-tag capex">Capex</span>
+                <span class="news-tag risk">FCF Risk</span>
+            </div>
+            <div class="news-card">
+                <div class="news-date">Feb 4, 2026</div>
+                <h3>Alphabet Resets the Bar for AI Infrastructure Spending</h3>
+                <p>Google parent announces up to $185B in 2026 capex &mdash; the highest single-company guidance ever. Morgan Stanley projects Alphabet could spend $250B in 2027. Nearly doubling 2025 levels.</p>
+                <span class="news-tag capex">Capex</span>
+            </div>
+            <div class="news-card">
+                <div class="news-date">Jan 15, 2026</div>
+                <h3>Gartner: AI Spending to Hit $2.52 Trillion in 2026</h3>
+                <p>Revised upward from earlier estimates. AI now accounts for over one-third of all global IT spending ($6.08T). This level was not expected until 2028 under previous forecasts.</p>
+                <span class="news-tag market">Market</span>
+            </div>
+            <div class="news-card">
+                <div class="news-date">Jan 2026</div>
+                <h3>CES 2026: Industry Pivots from Training to Inference</h3>
+                <p>CES 2026 highlighted the compute shift from training to inference as the defining trend. Inference now accounts for ~67% of AI compute, up from 33% in 2023. Inference-optimized chip market exceeds $50B.</p>
+                <span class="news-tag inference">Inference</span>
+                <span class="news-tag chips">Chips</span>
+            </div>
+            <div class="news-card">
+                <div class="news-date">Dec 2025</div>
+                <h3>VCs Predict More AI Spend Through Fewer Vendors</h3>
+                <p>Enterprises consolidating AI spending. Innovation budgets dropped from 25% to 7% of LLM spending as AI moves from experimentation to core operations. 80%+ of enterprises to deploy GenAI apps by 2026.</p>
+                <span class="news-tag enterprise">Enterprise</span>
+            </div>
+            <div class="news-card">
+                <div class="news-date">Dec 2025</div>
+                <h3>Hyperscaler Capex Increasingly Debt-Funded</h3>
+                <p>JP Morgan Chase estimates up to $7 trillion of AI spending will involve borrowed money. Transforming historically cash-funded business models. Goldman warns $1T annual profits needed to justify current capex.</p>
+                <span class="news-tag risk">Risk</span>
+                <span class="news-tag capex">Capex</span>
+            </div>
+            <div class="news-card">
+                <div class="news-date">Nov 2025</div>
+                <h3>NVIDIA Q3 FY2026: Data Center Revenue Hits $51.2B</h3>
+                <p>Data center revenue now 91% of total NVIDIA revenue, up from 60% in 2023. Revenue has increased ~10x in two years. CFO sees $500B in Blackwell/Rubin revenue visibility through end of 2026.</p>
+                <span class="news-tag chips">Chips</span>
+            </div>
+            <div class="news-card">
+                <div class="news-date">2025</div>
+                <h3>Inference Cost Drops 280x &mdash; But Total Spend Up 320%</h3>
+                <p>Per-token costs plummeted from $20 to $0.07 for GPT-4-class models, yet total inference spending surged 320% as usage scales exponentially faster than costs decline. AI workload volume grew 31x.</p>
+                <span class="news-tag inference">Inference</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enterprise vs Consumer Deep Dive -->
+    <div class="chart-card" style="margin-bottom:1.5rem;">
+        <h2>Enterprise AI Adoption Metrics</h2>
+        <div class="chart-subtitle">Key indicators of enterprise AI maturity</div>
+        <div class="data-table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Value</th>
+                        <th>Trend</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Organizations using AI in at least one function</td>
+                        <td><strong>88%</strong></td>
+                        <td style="color:var(--up)">Up from 78%</td>
+                    </tr>
+                    <tr>
+                        <td>Enterprises that will deploy GenAI apps by 2026</td>
+                        <td><strong>80%+</strong></td>
+                        <td style="color:var(--up)">Up from 5% in 2023</td>
+                    </tr>
+                    <tr>
+                        <td>Enterprises expecting to increase LLM spending</td>
+                        <td><strong>72%</strong></td>
+                        <td style="color:var(--up)">Next 12 months</td>
+                    </tr>
+                    <tr>
+                        <td>LLM budget growth (YoY among leaders)</td>
+                        <td><strong>~75%</strong></td>
+                        <td style="color:var(--up)">Accelerating</td>
+                    </tr>
+                    <tr>
+                        <td>Enterprise apps with AI agents by end 2026</td>
+                        <td><strong>40%</strong></td>
+                        <td style="color:var(--up)">Up from &lt;5% in 2025</td>
+                    </tr>
+                    <tr>
+                        <td>Organizations that reached AI maturity</td>
+                        <td><strong>1%</strong></td>
+                        <td style="color:var(--accent4)">Still early</td>
+                    </tr>
+                    <tr>
+                        <td>Innovation share of LLM budgets</td>
+                        <td><strong>7%</strong></td>
+                        <td style="color:var(--down)">Down from 25%</td>
+                    </tr>
+                    <tr>
+                        <td>Enterprise AI spend 2024</td>
+                        <td><strong>$13.8B</strong></td>
+                        <td style="color:var(--up)">6x YoY increase</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Sources -->
+    <div class="sources">
+        <h2>Data Sources</h2>
+        <div class="sources-list">
+            <a href="https://www.gartner.com/en/newsroom/press-releases/2026-1-15-gartner-says-worldwide-ai-spending-will-total-2-point-5-trillion-dollars-in-2026" target="_blank">Gartner: AI Spending $2.5T in 2026</a>
+            <a href="https://www.goldmansachs.com/insights/articles/why-ai-companies-may-invest-more-than-500-billion-in-2026" target="_blank">Goldman Sachs: AI Investment 2026</a>
+            <a href="https://www.cnbc.com/2026/02/06/google-microsoft-meta-amazon-ai-cash.html" target="_blank">CNBC: Tech AI Spending $700B</a>
+            <a href="https://nvidianews.nvidia.com/news/nvidia-announces-financial-results-for-third-quarter-fiscal-2026" target="_blank">NVIDIA Q3 FY2026 Earnings</a>
+            <a href="https://epoch.ai/data-insights/llm-inference-price-trends" target="_blank">Epoch AI: Inference Price Trends</a>
+            <a href="https://menlovc.com/perspective/2025-the-state-of-consumer-ai/" target="_blank">Menlo VC: State of Consumer AI</a>
+            <a href="https://a16z.com/ai-enterprise-2025/" target="_blank">a16z: Enterprise Gen AI 2025</a>
+            <a href="https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai" target="_blank">McKinsey: State of AI 2025</a>
+            <a href="https://www.deloitte.com/us/en/insights/industry/technology/technology-media-and-telecom-predictions/2026/compute-power-ai.html" target="_blank">Deloitte: AI Compute Demand 2026</a>
+            <a href="https://my.idc.com/getdoc.jsp?containerId=prUS53894425" target="_blank">IDC: AI Infrastructure to $758B</a>
+        </div>
+    </div>
+
+    <div class="footer">
+        Data compiled from Gartner, Goldman Sachs, IDC, McKinsey, CNBC, NVIDIA earnings, a16z, Menlo Ventures, Epoch AI, and other public sources.
+        <br>Dashboard designed for informational purposes. Figures are estimates/projections and subject to revision.
+        <br>Auto-refresh: update the data sources periodically for the latest figures. | <a href="https://github.com/jwasham/coding-interview-university" target="_blank">Repository</a>
+    </div>
+</div>
+
+<script>
+// Chart.js defaults
+Chart.defaults.color = '#8b8fa3';
+Chart.defaults.borderColor = '#2e3345';
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+Chart.defaults.font.size = 12;
+
+// 1. Global AI Spending
+new Chart(document.getElementById('globalSpendingChart'), {
+    type: 'bar',
+    data: {
+        labels: ['2023', '2024', '2025', '2026 (proj)'],
+        datasets: [{
+            label: 'Total AI Spending ($T)',
+            data: [0.63, 0.988, 1.48, 2.52],
+            backgroundColor: ['#6c5ce780', '#6c5ce7a0', '#6c5ce7c0', '#6c5ce7'],
+            borderColor: '#6c5ce7',
+            borderWidth: 1,
+            borderRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: ctx => `$${ctx.parsed.y}T`
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: v => `$${v}T`
+                },
+                grid: { color: '#2e334530' }
+            },
+            x: {
+                grid: { display: false }
+            }
+        }
+    }
+});
+
+// 2. Inference vs Training
+new Chart(document.getElementById('inferenceTrainingChart'), {
+    type: 'line',
+    data: {
+        labels: ['2022', '2023', '2024', '2025', '2026 (proj)', '2027 (proj)'],
+        datasets: [
+            {
+                label: 'Inference %',
+                data: [20, 33, 45, 55, 67, 75],
+                borderColor: '#00cec9',
+                backgroundColor: 'rgba(0,206,201,0.1)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 5,
+                pointBackgroundColor: '#00cec9'
+            },
+            {
+                label: 'Training %',
+                data: [80, 67, 55, 45, 33, 25],
+                borderColor: '#fd79a8',
+                backgroundColor: 'rgba(253,121,168,0.1)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 5,
+                pointBackgroundColor: '#fd79a8'
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}%`
+                }
+            }
+        },
+        scales: {
+            y: {
+                min: 0, max: 100,
+                ticks: { callback: v => v + '%' },
+                grid: { color: '#2e334530' }
+            },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// 3. Hyperscaler Capex
+new Chart(document.getElementById('capexChart'), {
+    type: 'bar',
+    data: {
+        labels: ['Amazon', 'Alphabet', 'Microsoft', 'Meta'],
+        datasets: [
+            {
+                label: '2025 Capex ($B)',
+                data: [125, 92, 64.6, 71],
+                backgroundColor: '#6c5ce780',
+                borderColor: '#6c5ce7',
+                borderWidth: 1,
+                borderRadius: 4
+            },
+            {
+                label: '2026 Capex ($B, est.)',
+                data: [200, 180, 145, 125],
+                backgroundColor: '#00cec9c0',
+                borderColor: '#00cec9',
+                borderWidth: 1,
+                borderRadius: 4
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: ctx => `${ctx.dataset.label}: $${ctx.parsed.y}B`
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { callback: v => `$${v}B` },
+                grid: { color: '#2e334530' }
+            },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// 4. Inference Cost
+new Chart(document.getElementById('inferenceCostChart'), {
+    type: 'line',
+    data: {
+        labels: ['Late 2022', 'Mid 2023', 'Early 2024', 'Mid 2024', 'Early 2025', 'Mid 2025'],
+        datasets: [{
+            label: 'Cost per 1M tokens ($)',
+            data: [20, 12, 5, 1.5, 0.40, 0.07],
+            borderColor: '#fdcb6e',
+            backgroundColor: 'rgba(253,203,110,0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 5,
+            pointBackgroundColor: '#fdcb6e'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: ctx => `$${ctx.parsed.y} / 1M tokens`
+                }
+            }
+        },
+        scales: {
+            y: {
+                type: 'logarithmic',
+                ticks: {
+                    callback: v => `$${v}`,
+                    autoSkip: false,
+                    maxTicksLimit: 6
+                },
+                grid: { color: '#2e334530' }
+            },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// 5. NVIDIA Data Center Revenue
+new Chart(document.getElementById('nvidiaChart'), {
+    type: 'line',
+    data: {
+        labels: [
+            'Q1 FY24', 'Q2 FY24', 'Q3 FY24', 'Q4 FY24',
+            'Q1 FY25', 'Q2 FY25', 'Q3 FY25', 'Q4 FY25',
+            'Q1 FY26', 'Q2 FY26', 'Q3 FY26', 'Q4 FY26 (est.)'
+        ],
+        datasets: [{
+            label: 'Data Center Revenue ($B)',
+            data: [4.3, 10.3, 14.5, 18.4, 22.6, 26.3, 30.8, 35.6, 42.1, 47.5, 51.2, 65],
+            borderColor: '#55efc4',
+            backgroundColor: 'rgba(85,239,196,0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#55efc4',
+            borderWidth: 2.5
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: ctx => `$${ctx.parsed.y}B`
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { callback: v => `$${v}B` },
+                grid: { color: '#2e334530' }
+            },
+            x: {
+                grid: { display: false },
+                ticks: { maxRotation: 45, minRotation: 0 }
+            }
+        }
+    }
+});
+
+// 6. Cloud Revenue
+new Chart(document.getElementById('cloudRevenueChart'), {
+    type: 'bar',
+    data: {
+        labels: ['AWS', 'Azure', 'GCP'],
+        datasets: [{
+            label: 'Q2 2025 Revenue ($B)',
+            data: [30.9, 29.9, 13.6],
+            backgroundColor: ['#ff9f43', '#6c5ce7', '#00cec9'],
+            borderRadius: 6
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: ctx => `$${ctx.parsed.x}B`
+                }
+            }
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                ticks: { callback: v => `$${v}B` },
+                grid: { color: '#2e334530' }
+            },
+            y: { grid: { display: false } }
+        }
+    }
+});
+
+// 7. Consumer AI Market Share (doughnut)
+new Chart(document.getElementById('consumerShareChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['ChatGPT', 'Gemini', 'Claude', 'Other'],
+        datasets: [{
+            data: [68, 18, 4, 10],
+            backgroundColor: ['#6c5ce7', '#00cec9', '#fd79a8', '#636e7260'],
+            borderColor: '#1a1d27',
+            borderWidth: 3
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '60%',
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: { padding: 16, usePointStyle: true, pointStyle: 'circle' }
+            },
+            tooltip: {
+                callbacks: {
+                    label: ctx => `${ctx.label}: ${ctx.parsed}%`
+                }
+            }
+        }
+    }
+});
+
+// Auto-update timestamp
+function updateTimestamp() {
+    const now = new Date();
+    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    document.getElementById('lastUpdated').textContent = 'Last updated: ' + now.toLocaleDateString('en-US', options);
+}
+updateTimestamp();
+</script>
+
+</body>
+</html>
